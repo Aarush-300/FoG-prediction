@@ -1,0 +1,312 @@
+{
+  "selected_model": "Improved_ResCNN",
+  "selection_criterion": "Highest Validation Composite Score (50% Val PR-AUC + 30% Val Ep Sens + 20% Val F1) without test leakage",
+  "validation_selection_score": 0.9106612944718467,
+  "models": {
+    "Baseline_1DCNN": {
+      "optimal_threshold": 0.53,
+      "val": {
+        "pr_auc": 0.8212813317045664,
+        "roc_auc": 0.8596794885577702,
+        "f1_score": 0.767189384800965,
+        "window_sensitivity": 0.7589498806682577,
+        "window_specificity": 0.8618618618618619,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.5,
+        "fa_per_hour": 994.5945945945946,
+        "episodes_caught": "8/8"
+      },
+      "test": {
+        "pr_auc": 0.46422069466728866,
+        "roc_auc": 0.6846764346764347,
+        "window_sensitivity": 0.3324175824175824,
+        "window_specificity": 0.8697632058287796,
+        "precision": 0.4583333333333333,
+        "f1_score": 0.3853503184713376,
+        "episode_sensitivity": 0.9444444444444444,
+        "warning_time_s": 0.23529411764705882,
+        "fa_per_hour": 937.7049180327868,
+        "episodes_caught": "17/18",
+        "confusion_matrix": {
+          "TN": 955,
+          "FP": 143,
+          "FN": 243,
+          "TP": 121
+        },
+        "per_subject": {
+          "18": {
+            "episodes_caught": "0/0",
+            "ep_sensitivity": 0.0,
+            "window_sensitivity": 1.0,
+            "window_specificity": 0.9882352941176471
+          },
+          "20": {
+            "episodes_caught": "5/5",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.32222222222222224,
+            "window_specificity": 0.75
+          },
+          "21": {
+            "episodes_caught": "8/9",
+            "ep_sensitivity": 0.8888888888888888,
+            "window_sensitivity": 0.29896907216494845,
+            "window_specificity": 0.864516129032258
+          },
+          "22": {
+            "episodes_caught": "4/4",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.425,
+            "window_specificity": 0.6859504132231405
+          }
+        }
+      },
+      "parameters": 4465,
+      "architecture": "Baseline_1DCNN",
+      "validation_selection_score": 0.8640785428124762
+    },
+    "Improved_ResCNN": {
+      "optimal_threshold": 0.44000000000000006,
+      "val": {
+        "pr_auc": 0.8921797318008363,
+        "roc_auc": 0.9126584818708923,
+        "f1_score": 0.8228571428571428,
+        "window_sensitivity": 0.8591885441527446,
+        "window_specificity": 0.8558558558558559,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.6875,
+        "fa_per_hour": 1037.837837837838,
+        "episodes_caught": "8/8"
+      },
+      "test": {
+        "pr_auc": 0.531727475400677,
+        "roc_auc": 0.7473878580435958,
+        "window_sensitivity": 0.48626373626373626,
+        "window_specificity": 0.8214936247723132,
+        "precision": 0.4745308310991957,
+        "f1_score": 0.48032564450474896,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.4722222222222222,
+        "fa_per_hour": 1285.2459016393443,
+        "episodes_caught": "18/18",
+        "confusion_matrix": {
+          "TN": 902,
+          "FP": 196,
+          "FN": 187,
+          "TP": 177
+        },
+        "per_subject": {
+          "18": {
+            "episodes_caught": "0/0",
+            "ep_sensitivity": 0.0,
+            "window_sensitivity": 1.0,
+            "window_specificity": 0.9392156862745098
+          },
+          "20": {
+            "episodes_caught": "5/5",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.4,
+            "window_specificity": 0.8012820512820513
+          },
+          "21": {
+            "episodes_caught": "9/9",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.5927835051546392,
+            "window_specificity": 0.5161290322580645
+          },
+          "22": {
+            "episodes_caught": "4/4",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.325,
+            "window_specificity": 0.768595041322314
+          }
+        }
+      },
+      "parameters": 43393,
+      "architecture": "Improved_ResCNN",
+      "validation_selection_score": 0.9106612944718467
+    },
+    "CNN_GRU": {
+      "optimal_threshold": 0.7400000000000002,
+      "val": {
+        "pr_auc": 0.8448443726482734,
+        "roc_auc": 0.889057315071635,
+        "f1_score": 0.7976878612716763,
+        "window_sensitivity": 0.8233890214797136,
+        "window_specificity": 0.8483483483483484,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 1.0,
+        "fa_per_hour": 1091.8918918918919,
+        "episodes_caught": "8/8"
+      },
+      "test": {
+        "pr_auc": 0.471614418390386,
+        "roc_auc": 0.7150763626173463,
+        "window_sensitivity": 0.38186813186813184,
+        "window_specificity": 0.8306010928961749,
+        "precision": 0.4276923076923077,
+        "f1_score": 0.4034833091436865,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.5833333333333334,
+        "fa_per_hour": 1219.672131147541,
+        "episodes_caught": "18/18",
+        "confusion_matrix": {
+          "TN": 912,
+          "FP": 186,
+          "FN": 225,
+          "TP": 139
+        },
+        "per_subject": {
+          "18": {
+            "episodes_caught": "0/0",
+            "ep_sensitivity": 0.0,
+            "window_sensitivity": 1.0,
+            "window_specificity": 0.9588235294117647
+          },
+          "20": {
+            "episodes_caught": "5/5",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.34444444444444444,
+            "window_specificity": 0.7980769230769231
+          },
+          "21": {
+            "episodes_caught": "9/9",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.34536082474226804,
+            "window_specificity": 0.8516129032258064
+          },
+          "22": {
+            "episodes_caught": "4/4",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.5125,
+            "window_specificity": 0.34710743801652894
+          }
+        }
+      },
+      "parameters": 14433,
+      "architecture": "CNN_GRU",
+      "validation_selection_score": 0.881959758578472
+    },
+    "CNN_LSTM": {
+      "optimal_threshold": 0.6100000000000001,
+      "val": {
+        "pr_auc": 0.841950289860899,
+        "roc_auc": 0.8750528571530958,
+        "f1_score": 0.783410138248848,
+        "window_sensitivity": 0.8114558472553699,
+        "window_specificity": 0.8363363363363363,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.75,
+        "fa_per_hour": 1178.3783783783783,
+        "episodes_caught": "8/8"
+      },
+      "test": {
+        "pr_auc": 0.5262211892320346,
+        "roc_auc": 0.7259252587121439,
+        "window_sensitivity": 0.40384615384615385,
+        "window_specificity": 0.8998178506375227,
+        "precision": 0.5719844357976653,
+        "f1_score": 0.47342995169082125,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.2222222222222222,
+        "fa_per_hour": 721.3114754098361,
+        "episodes_caught": "18/18",
+        "confusion_matrix": {
+          "TN": 988,
+          "FP": 110,
+          "FN": 217,
+          "TP": 147
+        },
+        "per_subject": {
+          "18": {
+            "episodes_caught": "0/0",
+            "ep_sensitivity": 0.0,
+            "window_sensitivity": 1.0,
+            "window_specificity": 0.9745098039215686
+          },
+          "20": {
+            "episodes_caught": "5/5",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.2777777777777778,
+            "window_specificity": 0.8076923076923077
+          },
+          "21": {
+            "episodes_caught": "9/9",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.4536082474226804,
+            "window_specificity": 0.7741935483870968
+          },
+          "22": {
+            "episodes_caught": "4/4",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.425,
+            "window_specificity": 0.9834710743801653
+          }
+        }
+      },
+      "parameters": 16929,
+      "architecture": "CNN_LSTM",
+      "validation_selection_score": 0.8776571725802191
+    },
+    "Dilated_TCN": {
+      "optimal_threshold": 0.55,
+      "val": {
+        "pr_auc": 0.8593913161578529,
+        "roc_auc": 0.8789051581414351,
+        "f1_score": 0.7686746987951807,
+        "window_sensitivity": 0.7613365155131265,
+        "window_specificity": 0.8618618618618619,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.5,
+        "fa_per_hour": 994.5945945945946,
+        "episodes_caught": "8/8"
+      },
+      "test": {
+        "pr_auc": 0.5394624634275433,
+        "roc_auc": 0.7322454412618347,
+        "window_sensitivity": 0.4175824175824176,
+        "window_specificity": 0.8770491803278688,
+        "precision": 0.5296167247386759,
+        "f1_score": 0.46697388632872505,
+        "episode_sensitivity": 1.0,
+        "warning_time_s": 0.2222222222222222,
+        "fa_per_hour": 885.2459016393443,
+        "episodes_caught": "18/18",
+        "confusion_matrix": {
+          "TN": 963,
+          "FP": 135,
+          "FN": 212,
+          "TP": 152
+        },
+        "per_subject": {
+          "18": {
+            "episodes_caught": "0/0",
+            "ep_sensitivity": 0.0,
+            "window_sensitivity": 1.0,
+            "window_specificity": 0.9686274509803922
+          },
+          "20": {
+            "episodes_caught": "5/5",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.32222222222222224,
+            "window_specificity": 0.75
+          },
+          "21": {
+            "episodes_caught": "9/9",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.4793814432989691,
+            "window_specificity": 0.8193548387096774
+          },
+          "22": {
+            "episodes_caught": "4/4",
+            "ep_sensitivity": 1.0,
+            "window_sensitivity": 0.375,
+            "window_specificity": 0.8925619834710744
+          }
+        }
+      },
+      "parameters": 27009,
+      "architecture": "Dilated_TCN",
+      "validation_selection_score": 0.8834305978379626
+    }
+  }
+}

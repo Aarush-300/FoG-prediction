@@ -1,0 +1,40 @@
+{
+  "target_hardware": {
+    "soc": "Espressif ESP32-WROOM-32 (ESP32 DevKit V1)",
+    "architecture": "Dual-Core Xtensa 32-bit LX6",
+    "clock_frequency_mhz": 240.0,
+    "cores": 2,
+    "total_flash_kb": 4096,
+    "usable_sram_kb": 320,
+    "sensor": "InvenSense MPU6050 6-Axis IMU (I2C @ 400 kHz)"
+  },
+  "deployed_model": {
+    "architecture": "Improved_ResCNN",
+    "parameters": 43393,
+    "model_flash_bytes": 69008,
+    "model_flash_kb": 67.39,
+    "flash_utilization_pct": 1.645,
+    "tensor_arena_bytes": 204014,
+    "tensor_arena_kb": 199.23,
+    "sram_utilization_pct": 62.26
+  },
+  "timing_and_latency": {
+    "total_macs_per_inference": 455626,
+    "total_flops_per_inference": 911252,
+    "estimated_cycles": 854298,
+    "estimated_latency_ms": 3.56,
+    "realtime_deadline_ms": 500.0,
+    "core1_duty_cycle_pct": 0.71,
+    "core0_acquisition_duty_cycle_pct": 1.25,
+    "overall_cpu_headroom_pct": 99.02
+  },
+  "power_and_battery": {
+    "avg_esp32_cpu_current_ma": 1.01,
+    "mpu6050_sensor_current_ma": 3.8,
+    "haptic_driver_avg_current_ma": 0.1,
+    "total_system_current_ma": 4.91,
+    "battery_capacity_mah": 500.0,
+    "battery_lifetime_hours": 101.9,
+    "battery_lifetime_days": 4.2
+  }
+}

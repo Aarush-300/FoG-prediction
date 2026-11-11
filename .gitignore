@@ -1,0 +1,64 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing & Linting
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter & IDEs
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Hardware & Embedded Build Artifacts
+.pio/
+.pioenvs/
+.piolibdeps/
+*.hex
+*.bin
+*.elf
+
+# Dataset Raw CSV (Exceeds GitHub 100 MB Limit)
+# Use src/download_dataset.py or see data/README.md to obtain raw data
+data/raw/*.csv
+data/raw/sensor_data.csv
+
+# Archives & Temporary Backups
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
+desktop.ini

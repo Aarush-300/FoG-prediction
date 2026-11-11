@@ -1,0 +1,64 @@
+{
+  "source_fs": 60.0,
+  "target_fs": 50.0,
+  "window_sec": 2.0,
+  "stride_sec": 0.5,
+  "window_samples": 100,
+  "stride_samples": 25,
+  "pre_fog_min_s": 0.5,
+  "pre_fog_max_s": 3.0,
+  "fog_overlap_thresh": 0.5,
+  "channels": [
+    "ankleL_acc_x",
+    "ankleL_acc_y",
+    "ankleL_acc_z",
+    "ankleL_gyro_x",
+    "ankleL_gyro_y",
+    "ankleL_gyro_z"
+  ],
+  "train_subjects": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    9,
+    11,
+    12,
+    13,
+    15,
+    16,
+    6,
+    7,
+    8,
+    10
+  ],
+  "val_subjects": [
+    17,
+    19,
+    14
+  ],
+  "test_subjects": [
+    20,
+    21,
+    22,
+    18
+  ],
+  "scaler_mean": [
+    -1.0059295892715454,
+    0.13175329566001892,
+    0.11280083656311035,
+    2.1440091133117676,
+    1.1096514463424683,
+    -0.6951203942298889
+  ],
+  "scaler_std": [
+    0.19035448133945465,
+    0.3115290701389313,
+    0.1898581087589264,
+    45.32674789428711,
+    23.229839324951172,
+    63.61863708496094
+  ],
+  "seed": 42
+}

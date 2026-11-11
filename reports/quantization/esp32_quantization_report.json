@@ -1,0 +1,18 @@
+{
+  "model_name": "selected_best_model.h5",
+  "float32_tflite_bytes": 184832,
+  "int8_tflite_bytes": 69008,
+  "is_int8_io": true,
+  "input_scale": 0.09592877328395844,
+  "input_zero_point": 7,
+  "output_scale": 0.00390625,
+  "output_zero_point": -128,
+  "estimated_arena_bytes": 204014,
+  "metrics": {
+    "keras_pr_auc": 0.531727475400677,
+    "keras_roc_auc": 0.7473878580435958,
+    "int8_tflite_pr_auc": 0.5082503699564448,
+    "int8_tflite_roc_auc": 0.7329522708621069,
+    "retention_pct": 95.58474847918262
+  }
+}

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you utilize this embedded wearable Parkinson's FoG system or algorithms, please cite as follows:"
+title: "ESP32 Parkinson's Disease Freezing of Gait Real-Time Prediction System"
+authors:
+  - family-names: "Antigravity Research Team"
+    given-names: "TinyML Embedded Health"
+version: 2.0.0
+date-released: 2026-11-11
+url: "https://github.com/aarush/parkinsons-fog-esp32"
+keywords:
+  - "Parkinson's Disease"
+  - "Freezing of Gait"
+  - "TinyML"
+  - "TensorFlow Lite Micro"
+  - "ESP32"
+  - "Biomedical Signal Processing"
+  - "Wearable Healthcare"
