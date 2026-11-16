@@ -1,5 +1,7 @@
 # Wearable Parkinson's Freezing-of-Gait (FoG) Detection & Early Warning System
 
+> **Note:** The version submitted to the hackathon is preserved at git tag `v1-submitted`. The current `main` contains post-submission improvements with a before/after comparison in [reports/v2/BEFORE_AFTER.md](reports/v2/BEFORE_AFTER.md).
+
 An embedded Edge-AI wearable system deployed on an **ESP32 DevKit V1 (ESP32-WROOM-32 @ 240 MHz)** with an external **InvenSense MPU6050 6-Axis IMU** and haptic motor for real-time Freezing-of-Gait (FoG) prediction in Parkinson's disease.
 
 ---

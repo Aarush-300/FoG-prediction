@@ -5,9 +5,9 @@
 In clinical wearable ML, random window splitting leads to catastrophic data leakage because adjacent overlapping windows from the same subject share biomechanical cadence and static sensor mounting angles.
 
 To guarantee zero data contamination:
-- **Train Partition (7,729 windows):** Subjects 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19.
-- **Validation Partition (1,085 windows):** Subject 4. Model selection and decision threshold tuning are performed **STRICTLY on Validation metrics**.
-- **Held-Out Test Partition (1,462 windows):** Subjects 18, 20, 21, and 22. Evaluated only once with frozen hyperparameters.
+- **Train Partition (7,729 windows):** Subjects 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16 (15 subjects).
+- **Validation Partition (1,085 windows):** Subjects 14, 17, 19 (3 subjects). Model selection and decision threshold tuning are performed **STRICTLY on Validation metrics**.
+- **Held-Out Test Partition (1,462 windows):** Subjects 18, 20, 21, 22 (4 subjects). Evaluated only once with frozen hyperparameters.
 
 ---
 
