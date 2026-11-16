@@ -1,0 +1,179 @@
+{
+  "timestamp": "2026-11-16T13:39:30Z",
+  "adopted_recipe": "baseline_rotation_35",
+  "fixed_epoch_count": 5,
+  "deployed_seed": 44,
+  "fsm_presets": {
+    "LOW_ALARM": {
+      "preset_name": "LOW_ALARM",
+      "config": {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      "mean_lenient": 44.927536231884055,
+      "mean_strict": 2.898550724637681,
+      "mean_relaxed": 4.3478260869565215,
+      "mean_fa_hr": 58.6112493777999,
+      "seconds_per_fa": 61.42165605095541,
+      "median_delay_s": 2.0,
+      "iqr_delay_s": [
+        1.3999999999999986,
+        3.3000000000000007
+      ],
+      "pct_within_1s": 18.27956989247312,
+      "per_subject_breakdown": {
+        "1": {
+          "total_episodes": 5,
+          "caught_episodes": 2.6666666666666665,
+          "lenient_sensitivity": 53.333333333333336
+        },
+        "2": {
+          "total_episodes": 11,
+          "caught_episodes": 6.666666666666667,
+          "lenient_sensitivity": 60.60606060606061
+        },
+        "3": {
+          "total_episodes": 7,
+          "caught_episodes": 4.0,
+          "lenient_sensitivity": 57.14285714285714
+        },
+        "9": {
+          "total_episodes": 10,
+          "caught_episodes": 0.6666666666666666,
+          "lenient_sensitivity": 6.666666666666667
+        },
+        "11": {
+          "total_episodes": 9,
+          "caught_episodes": 3.3333333333333335,
+          "lenient_sensitivity": 37.03703703703704
+        },
+        "12": {
+          "total_episodes": 4,
+          "caught_episodes": 2.0,
+          "lenient_sensitivity": 50.0
+        },
+        "13": {
+          "total_episodes": 3,
+          "caught_episodes": 0.6666666666666666,
+          "lenient_sensitivity": 22.22222222222222
+        },
+        "15": {
+          "total_episodes": 8,
+          "caught_episodes": 5.666666666666667,
+          "lenient_sensitivity": 70.83333333333334
+        },
+        "19": {
+          "total_episodes": 8,
+          "caught_episodes": 5.333333333333333,
+          "lenient_sensitivity": 66.66666666666666
+        }
+      },
+      "optimism_gap": {
+        "in_sample_lenient": 44.927536231884055,
+        "lofo_lenient": 44.927536231884055,
+        "gap_lenient": 0.0,
+        "in_sample_fa": 58.6112493777999,
+        "lofo_fa": 58.611249377799886,
+        "gap_fa": -1.4210854715202004e-14
+      }
+    },
+    "BALANCED": {
+      "preset_name": "BALANCED",
+      "config": {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.55,
+        "low": 0.35,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      "mean_lenient": 70.53140096618357,
+      "mean_strict": 7.246376811594203,
+      "mean_relaxed": 9.66183574879227,
+      "mean_fa_hr": 111.99601791936287,
+      "seconds_per_fa": 32.144,
+      "median_delay_s": 1.4500000000000028,
+      "iqr_delay_s": [
+        0.8999999999999989,
+        2.5
+      ],
+      "pct_within_1s": 31.506849315068493,
+      "per_subject_breakdown": {
+        "1": {
+          "total_episodes": 5,
+          "caught_episodes": 4.333333333333333,
+          "lenient_sensitivity": 86.66666666666666
+        },
+        "2": {
+          "total_episodes": 11,
+          "caught_episodes": 9.666666666666666,
+          "lenient_sensitivity": 87.87878787878788
+        },
+        "3": {
+          "total_episodes": 7,
+          "caught_episodes": 6.333333333333333,
+          "lenient_sensitivity": 90.47619047619048
+        },
+        "9": {
+          "total_episodes": 10,
+          "caught_episodes": 3.6666666666666665,
+          "lenient_sensitivity": 36.666666666666664
+        },
+        "11": {
+          "total_episodes": 9,
+          "caught_episodes": 6.333333333333333,
+          "lenient_sensitivity": 70.37037037037037
+        },
+        "12": {
+          "total_episodes": 4,
+          "caught_episodes": 3.3333333333333335,
+          "lenient_sensitivity": 83.33333333333334
+        },
+        "13": {
+          "total_episodes": 3,
+          "caught_episodes": 0.6666666666666666,
+          "lenient_sensitivity": 22.22222222222222
+        },
+        "15": {
+          "total_episodes": 8,
+          "caught_episodes": 8.0,
+          "lenient_sensitivity": 100.0
+        },
+        "19": {
+          "total_episodes": 8,
+          "caught_episodes": 6.0,
+          "lenient_sensitivity": 75.0
+        }
+      },
+      "optimism_gap": {
+        "in_sample_lenient": 70.53140096618357,
+        "lofo_lenient": 70.53140096618358,
+        "gap_lenient": -1.1102230246251565e-14,
+        "in_sample_fa": 111.99601791936287,
+        "lofo_fa": 111.99601791936284,
+        "gap_fa": -2.842170943040401e-14
+      }
+    }
+  },
+  "artifact_hashes": {
+    "export/v2/b_rotation_35_seed44_int8.tflite": "a9d0ace3812bd1f7d4fbbd3e5c42383268aaaaff401c4de620276d955cad1ed3",
+    "export/v2/golden_vectors.h": "1951007011621324a8c2be796315007da1733830612a18763419296e88d887d1",
+    "export/v2/golden_vectors_v2.json": "fb802ce376123c1c233677b558aeb4bfe5ac4577f141e58926d7da887fd40f1b",
+    "export/v2/model_data.h": "bcaa2fc8a7ff1b5cdb09024d456c2f2e1ff6072d3c86300e9eee8a44d2789197",
+    "export/v2/preprocess_config.json": "ed9e1d741fefdd28d9f8f28c927738117b51999209ad5aeeea988b5efcd3e992",
+    "export/v2/quantization_constants.json": "e83ea56c471b9dd4020f9e1268a9c4c5ccc94eff2367e7e4258a726b3c677630",
+    "export/v2/scaler.json": "2eb3e43b08134f6de06d2a2df8d54ba5f6361195b5580d2ea98621a51cf1c2ec",
+    "models/v2/b_rotation_35_seed42.h5": "e6e8002cab05e137481cd1f0a1ceabd55e1b8e11ce6e89c6d60cfbede1ea8efc",
+    "models/v2/b_rotation_35_seed43.h5": "a7a482c75d10ab890919cfca3e6b09772a86aa3e06341b560a51e7dfda51e18c",
+    "models/v2/b_rotation_35_seed44.h5": "94643e61484fb6d2e9dfd1c3ad9410625cd959118bdc0c7ee5fc5de6c405727c",
+    "models/v2/b_rotation_35_seed44_int8.tflite": "a9d0ace3812bd1f7d4fbbd3e5c42383268aaaaff401c4de620276d955cad1ed3",
+    "models/v2/b_rotation_35_seed45.h5": "2ad6667313863a1e71fd961642959b1b8f902af4d254929f2ac8afb9ed561472",
+    "models/v2/b_rotation_35_seed46.h5": "b3d14e499b62a39ee0a0ee82f2348fb744899a15c6f170e558a6ea894ce5890d"
+  }
+}
