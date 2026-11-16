@@ -1,9 +1,13 @@
 # Pre-Registration Plan: Wearable FoG Prediction v2 Improvement & Hardening
 
 **Document Status:** Locked & Pre-Registered Prior to Any Model Training  
-**Date:** November 16, 2026 (Amended with Enhanced FSM Grid & Pre-FoG Weighting)  
+**Date:** November 16, 2026 (Amended with Enhanced FSM Grid, Pre-FoG Weighting, and Label Definitions)  
 **Target Repository:** ESP32 Parkinson's Freezing-of-Gait Prediction System  
 **Git Tag Reference:** `v1-submitted` (Hackathon baseline snapshot)
+
+> [!NOTE]
+> **Protocol Amendment & Disclosure:**
+> The operating-point selection rule, expanded FSM hyperparameter search grid ($N_{\text{confirm}} \in \{1, 2, 3\}$, $\alpha \le 1.0$), and the Relaxed Early Warning metric were amended on November 16, 2026, **AFTER** inspecting the initial v1 submitted evaluation results, including v1 test-episode timelines (which revealed that 2-step confirmation and EMA smoothing lag accounted for missed early warnings). All subsequent training, hyperparameter selection, and operating point decisions remain strictly blinded to test features and are executed solely on the 18 development cohort subjects via 6-fold cross-validation.
 
 ---
 
@@ -105,7 +109,8 @@ Evaluated against the baseline v1 recipe using 6-fold OOF CV across 3 random see
 | **c) Sensor Mismatch & Noise** | Per-window gain ($\pm 5\%$), accel bias ($\pm 0.03\text{ g}$), gyro bias ($\pm 3^\circ/\text{s}$), Gaussian jitter, and simulated $20\text{--}24\text{ Hz}$ haptic vibration noise | Robustness against MPU6050 calibration drift and motor mechanical coupling |
 | **d) Loss & Imbalance** | Standard BCE vs Class Weighted BCE vs Focal Loss ($\gamma \in \{1.0, 2.0\}$) vs Label Smoothing ($0.05$) | Highest OOF PR-AUC with low calibration error |
 | **e) Pre-FoG Horizon Weighting** | Pre-FoG window loss weighting at **$1\times$ vs $2\times$ vs $4\times$** relative to normal windows | Prioritize pre-freeze feature learning to maximize lead time |
-| **f) Regularization & Schedule** | Dropout ($\{0.2, 0.3, 0.4\}$), $L_2$ weight decay ($\{0, 10^{-4}\}$), Cosine Annealing learning rate schedule | Best OOF generalization without overfitting |
+| **f) Label Definition Variants** | (1) v1 default labels: transition windows (label -1, $<0.5\text{ s}$ pre-freeze or partial overlap) count as positive (1);<br>(2) Dropping transition windows (label -1) entirely from training data;<br>(3) Clean positives: positives = pure pre-FoG (label 1) + active FoG (label 2) only.<br>Evaluate all variants with both the **STRICT** ($\Delta t_{\text{lead}} \in [0.5, 3.0]\text{ s}$) and **RELAXED** ($\Delta t_{\text{lead}} \ge 0.0\text{ s}$) early warning metrics. | Highest OOF STRICT and RELAXED episode sensitivity subject to $\le 30\text{ FA/hr}$ |
+| **g) Regularization & Schedule** | Dropout ($\{0.2, 0.3, 0.4\}$), $L_2$ weight decay ($\{0, 10^{-4}\}$), Cosine Annealing learning rate schedule | Best OOF generalization without overfitting |
 
 **Significance Rule:** Any candidate variant must beat the baseline recipe by more than one standard error across CV folds to be adopted into the final configuration; otherwise, the simpler baseline variant is retained and the negative finding is documented.
 

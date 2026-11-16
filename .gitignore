@@ -62,3 +62,6 @@ data/raw/sensor_data.csv
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Scratch and intermediate scripts
+scratch/
