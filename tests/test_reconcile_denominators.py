@@ -12,6 +12,9 @@ from reconcile_denominators import reconcile_denominators
 
 
 def test_reconcile_denominators_proof():
+    if not (os.path.exists("data/raw/sensor_data.csv") and os.path.exists("data/processed/fog_dataset.npz")):
+        pytest.skip("Requires data/raw/sensor_data.csv and data/processed/fog_dataset.npz (run src/download_dataset.py and src/preprocess.py)")
+
     res = reconcile_denominators()
     
     # 1. Total windows consistency

@@ -39,7 +39,44 @@ flowchart LR
 
 ---
 
-## 2. Pinout & Electrical Connections
+## 2. Quickstart & Verification (Stranger's Guide)
+
+### Step 1: Clone Repository & Create Environment
+```bash
+git clone https://github.com/Aarush-300/FoG-prediction.git
+cd FoG-prediction
+
+# Create isolated Python 3.10 environment
+conda create -n tf_arc python=3.10 -y
+conda activate tf_arc
+pip install -r requirements.txt
+```
+
+### Step 2: Run Core Verification (Data-Free)
+All core verification tests—including firmware-to-Python parity, 4-state FSM host equivalence, golden vector inference, memory allocation bounds, and model export—execute immediately on a fresh clone without needing any external data:
+```bash
+# Run unit test suite
+pytest tests/ -v
+
+# Verify ESP32 firmware deployment assets and golden vector tolerances
+python src/verify_esp32_deployment.py
+```
+*(Tests requiring raw sensor recordings will automatically SKIP with an explanatory note when data files are not present).*
+
+### Step 3: (Optional) Full Dataset Reproduction & Training
+To reproduce data preprocessing, patient split isolation, and cross-validation:
+```bash
+# 1. Download sensor_data.csv (119.6 MB) from Zenodo Record 17838806 with SHA-256 verification
+python src/download_dataset.py
+
+# 2. Resample 60 Hz -> 50 Hz and extract 100x6 sliding windows (stride 25)
+python src/preprocess.py
+```
+After running preprocessing, all data-dependent tests (`tests/test_splits.py`, `tests/test_reconcile_denominators.py`) will automatically execute and pass.
+
+---
+
+## 3. Pinout & Electrical Connections
 
 | Sensor / Actuator Pin | ESP32 DevKit V1 Pin | Functional Description |
 |:---|:---|:---|
@@ -56,7 +93,7 @@ flowchart LR
 
 ---
 
-## 3. Real-Time Dual-Core FreeRTOS Architecture
+## 4. Real-Time Dual-Core FreeRTOS Architecture
 
 To guarantee deterministic 50 Hz sensor sampling and prevent dropped kinematic buffers during tensor operations, tasks are partitioned symmetrically across ESP32 cores with thread-safe mutex guards:
 
@@ -80,7 +117,7 @@ To guarantee deterministic 50 Hz sensor sampling and prevent dropped kinematic b
 
 ---
 
-## 4. Known Clinical & Technical Limitations
+## 5. Known Clinical & Technical Limitations
 
 Under pre-registered claim policy Rule 1.4, system performance is reported with full transparency:
 
@@ -101,14 +138,15 @@ Under pre-registered claim policy Rule 1.4, system performance is reported with 
 4. **Subject 22 Postural Tilt Findings:**
    - Subject 22 exhibited a static resting acceleration bias of $Y = -0.253\text{ g}$ (vs cohort nominal $+0.111\text{ g}$) and a roll offset of $-65.6^\circ$.
    - On test data, v1 caught 2 of 4 episodes while v2 caught 0 of 4 episodes. No causal claim is made regarding sensor tilt and catch rate; data are reported factually.
-5. **Seed-to-Seed Stochastic Variance:**
-   - Across 5 training seeds for the adopted architecture, test window PR-AUC varied between 0.5644 and 0.5912 (mean 0.5784), and sensitivity @ 0.49 varied between 61.3% and 64.6%.
+5. **Seed-to-Seed Stochastic Variance & Model Attribution:**
+   - Across 5 training seeds for the adopted architecture, test window PR-AUC varied between 0.5644 and 0.5912 (float mean 0.5784 ± 0.010; INT8 mean 0.499 ± 0.058).
+   - The deployed Seed 44 model achieves INT8 test window PR-AUC of **0.5721** (compared to v1 INT8 **0.5083**, float **0.5317**). Seed 44 was selected strictly based on development out-of-fold (OOF) cross-validation; test differences across seeds and between v1 and v2 are within statistical noise.
 6. **Optimism Gap:**
    - In nested Leave-One-Fold-Out (LOFO) validation on development data, the `BALANCED` preset showed an optimism gap of **10.14 percentage points in lenient sensitivity** (70.53% in-sample vs 60.39% nested LOFO) and **+10.45 FA/hr** (112.00 in-sample vs 122.45 nested LOFO).
 
 ---
 
-## 5. Firmware Flashing & Diagnostic Commands
+## 6. Firmware Flashing & Diagnostic Commands
 
 ### Prerequisites
 1. **Arduino IDE 2.x** or **VS Code with PlatformIO**.
@@ -130,7 +168,7 @@ Under pre-registered claim policy Rule 1.4, system performance is reported with 
 
 ---
 
-## 6. Automated Testing & Verification
+## 7. Automated Testing & Verification
 
 The project includes an end-to-end unit test suite in `tests/`:
 
@@ -148,7 +186,7 @@ Key verification tests include:
 
 ---
 
-## 7. Project Documentation Index
+## 8. Project Documentation Index
 
 - [Before-and-After Evaluation Report](reports/v2/BEFORE_AFTER.md): Comprehensive test cohort comparison between v1 submitted deck and v2 audited artifacts.
 - [Pre-Registration Protocol](reports/v2/PREREGISTRATION.md): Pre-registered operating point rules, claim policy, and errata.
@@ -160,7 +198,7 @@ Key verification tests include:
 
 ---
 
-## 8. Authors & Citation
+## 9. Authors & Citation
 
 **Authors:** Team KinetiX: Shambhavi, Aryan Singh, Aarush Relhan, Archit Dhingra.  
 **Repository:** [https://github.com/Aarush-300/FoG-prediction](https://github.com/Aarush-300/FoG-prediction)

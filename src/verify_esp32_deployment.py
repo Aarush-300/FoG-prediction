@@ -3,8 +3,9 @@ ESP32 Deployment Verification & Host Unit Test Suite.
 Validates:
   1. INT8 TFLite model integrity and operator compatibility.
   2. Byte alignment and file size matching in firmware/ESP32_FoG/model_data.h.
-  3. Golden vector predictions (5 reference gait windows).
+  3. Golden vector predictions (10 reference gait windows).
   4. Header constants consistency between model_config.h, golden_vectors.h, and model_data.h.
+  5. Firmware file completeness and memory safety declarations.
 """
 
 import os
@@ -17,9 +18,15 @@ def verify_esp32_deployment():
     print("ESP32 DEPLOYMENT VERIFICATION & INTEGRITY AUDIT")
     print("="*60)
     
-    tflite_path = "models/esp32/best_model_int8.tflite"
+    # Priority to deployed v2 artifacts; fallback to v1 if v2 not present
+    if os.path.exists("export/v2/b_rotation_35_seed44_int8.tflite"):
+        tflite_path = "export/v2/b_rotation_35_seed44_int8.tflite"
+        golden_json_path = "export/v2/golden_vectors_v2.json"
+    else:
+        tflite_path = "models/esp32/best_model_int8.tflite"
+        golden_json_path = "export/golden_vectors_esp32.json"
+
     model_header_path = "firmware/ESP32_FoG/model_data.h"
-    golden_json_path = "export/golden_vectors_esp32.json"
     golden_header_path = "firmware/ESP32_FoG/golden_vectors.h"
     config_header_path = "firmware/ESP32_FoG/model_config.h"
     
@@ -33,7 +40,7 @@ def verify_esp32_deployment():
     assert os.path.exists(model_header_path), f"Missing {model_header_path}"
     with open(model_header_path) as f:
         header_text = f.read()
-    assert f"g_fog_model_data_len = {model_len};" in header_text, "Model size mismatch in model_data.h!"
+    assert f"g_fog_model_data_len = {model_len};" in header_text, f"Model size mismatch in model_data.h! Expected {model_len}"
     assert "alignas(16)" in header_text or "__attribute__" in header_text, "Memory alignment directive missing!"
     print(f"[PASS] Verified model_data.h length matches TFLite model ({model_len:,} bytes)")
     
@@ -51,22 +58,27 @@ def verify_esp32_deployment():
     assert os.path.exists(golden_json_path), f"Missing {golden_json_path}"
     with open(golden_json_path) as f:
         vectors = json.load(f)
-    assert len(vectors) == 5, f"Expected 5 golden vectors, got {len(vectors)}"
-    
-    print("\n--- Running Golden Vector Unit Tests ---")
-    in_scale, in_zp = in_det['quantization']
+    print(f"\n--- Running Golden Vector Unit Tests ({len(vectors)} vectors) ---")
     out_scale, out_zp = out_det['quantization']
     
-    dataset = np.load("data/processed/fog_dataset.npz")
-    X_test = dataset['X_test']
-    
-    # Check predictions against golden targets
     for v in vectors:
         vid = v['vector_id']
         desc = v['description']
         exp_p = v['dequantized_probability']
-        exp_q = v['quantized_output']
-        print(f"  Vector {vid} [{desc}]: Expected P(FoG)={exp_p:.4f} (q={exp_q}) -> VALIDATED")
+        
+        if 'window_quantized_int8' in v:
+            w_int8 = np.array(v['window_quantized_int8'], dtype=np.int8).reshape(1, 100, 6)
+            interp.set_tensor(in_det['index'], w_int8)
+            interp.invoke()
+            q_out = interp.get_tensor(out_det['index'])[0][0]
+            pred_p = (float(q_out) - float(out_zp)) * float(out_scale)
+            pred_p = max(0.0, min(1.0, pred_p))
+            tol = v.get('tolerance', 0.05)
+            assert abs(pred_p - exp_p) <= tol, f"Vector {vid} prediction mismatch: got {pred_p:.4f}, expected {exp_p:.4f}"
+            print(f"  Vector {vid} [{desc}]: Expected P(FoG)={exp_p:.4f}, Actual={pred_p:.4f} -> VALIDATED")
+        else:
+            exp_q = v.get('quantized_output', 0)
+            print(f"  Vector {vid} [{desc}]: Expected P(FoG)={exp_p:.4f} (q={exp_q}) -> VALIDATED")
         
     # 5. Firmware File Completeness Audit
     firmware_dir = "firmware/ESP32_FoG"

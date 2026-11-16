@@ -23,8 +23,8 @@
 - **Issue 0.3 (Window Metrics Attribution Bug):**
   - *Problem:* In `BEFORE_AFTER.md`, v2 INT8 window metrics (PR-AUC 0.5721, ROC-AUC 0.7727) were duplicated across both v1 and v2 columns.
   - *Remediation:* Explicitly loaded models by file and SHA-256 checksum:
-    - `models/esp32/best_model_int8.tflite` (SHA-256: `1ca087a3...`): PR-AUC **0.5083**, ROC-AUC **0.7330**, Sens@0.49 **60.44%**, Spec@0.49 **79.96%**.
-    - `export/v2/b_rotation_35_seed44_int8.tflite` (SHA-256: `a9d0ace3...`): PR-AUC **0.5721**, ROC-AUC **0.7727**, Sens@0.49 **63.19%**, Spec@0.49 **73.86%**.
+    - `models/esp32/best_model_int8.tflite` (SHA-256: `1ca087a3...`): PR-AUC **0.5083** (float: 0.5317), ROC-AUC **0.7330**, Sens@0.49 **60.44%**, Spec@0.49 **79.96%**.
+    - `export/v2/b_rotation_35_seed44_int8.tflite` (SHA-256: `a9d0ace3...`): PR-AUC **0.5721** (5-seed test mean ± SD: 0.499 ± 0.058; seed 44 was selected strictly based on development OOF performance; differences across seeds and between v1 and v2 are within statistical noise), ROC-AUC **0.7727**, Sens@0.49 **63.19%**, Spec@0.49 **73.86%**.
 - **Issue 0.4 (Optimism Gap Calculation):**
   - *Problem:* `operating_point.md` reported an optimism gap of 0.00 because the selected preset was re-evaluated on the exact same pooled development trials.
   - *Remediation:* Implemented nested Leave-One-Fold-Out (LOFO) operating point selection (`src/compute_nested_lofo.py`) across 6 development folds on the 18 saved INT8 OOF prediction files. For each fold, hyperparameters were re-selected on 5 folds and evaluated on the held-out fold:
@@ -95,7 +95,7 @@
 | **Model Binary** | `best_model_int8.tflite` | `best_model_int8.tflite` | `b_rotation_35_seed44_int8.tflite` | — |
 | **Model SHA-256** | `1ca087a3...` | `1ca087a3...` | `a9d0ace3...` | — |
 | **Architecture / Params** | 43,393 params (Slide 10) | 43,393 params | 43,393 params | identical |
-| **Window PR-AUC** | 0.532 (Slide 11) | 0.5083 | 0.5721 | within noise |
+| **Window PR-AUC** | 0.532 (Slide 11) | 0.5083 (float: 0.5317) | 0.5721 (5-seed: 0.499 ± 0.058)* | within noise |
 | **Window ROC-AUC** | not reported in deck | 0.7330 | 0.7727 | within noise |
 | **Window Specificity @ 0.49** | 82.1% (Slide 11) | 79.96% | 73.86% | within noise |
 | **INT8 PR-AUC Retention** | 95.58% (Slide 12) | 95.58% | 97.34% | within noise |
@@ -106,6 +106,8 @@
 | **Median Detection Delay** | -0.47 s (Slide 11) | +1.30 s [1.15s, 4.10s] | +1.00 s [0.00s, 1.00s] | **within noise** |
 | **False Alerts / Hour** | not reported in deck | 124.6 FA/hr [103.3, 157.2] | 118.4 FA/hr [52.6, 204.3] | **within noise** |
 | **One False Alert Every** | not reported in deck | 28.9 seconds | 30.4 seconds | within noise |
+
+*\*Seed 44 was selected strictly based on development OOF performance; differences across seeds and between v1 and v2 are within statistical noise.*
 
 ---
 

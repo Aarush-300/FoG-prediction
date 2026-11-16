@@ -24,7 +24,7 @@ Under pre-registered protocol rule 1.4 and audit rule 0.10, the **Status** colum
 | **Model SHA-256** | `1ca087a3da991cd0...` | `1ca087a3da991cd0...` | `a9d0ace3812bd1f7...` | — |
 | **Architecture / Params** | 43,393 params (Deck Slide 10) | 43,393 params | 43,393 params | identical |
 | **Flash Size (Bytes)** | 69,264 bytes (Deck Slide 12) | 69,264 bytes | 69,264 bytes | identical |
-| **Window PR-AUC** | 0.532 (Deck Slide 11) | 0.5083 | 0.5721 | within noise |
+| **Window PR-AUC** | 0.532 (Deck Slide 11) | 0.5083 (float: 0.5317) | 0.5721 (5-seed: 0.499 ± 0.058)* | within noise |
 | **Window ROC-AUC** | not reported in deck | 0.7330 | 0.7727 | within noise |
 | **Window Specificity @ 0.49** | 82.1% (Deck Slide 11) | 79.96% (75.2% @ 0.44) | 73.86% | within noise |
 | **Window F1 Score** | 0.480 (Deck Slide 11) | 0.4571 | 0.4783 | within noise |
@@ -38,6 +38,8 @@ Under pre-registered protocol rule 1.4 and audit rule 0.10, the **Status** colum
 | **Total False Alerts / Hour** | not reported in deck | 124.6 FA/hr [103.3, 157.2] | 118.4 FA/hr [52.6, 204.3] | **within noise** |
 | **True False Alerts / Hour** | not reported in deck | 118.4 FA/hr | 112.2 FA/hr | within noise |
 | **One False Alert Every N Seconds** | not reported in deck | 28.9 seconds | 30.4 seconds | within noise |
+
+*\*Note on Window PR-AUC and Seed Selection: The deployed v2 model (Seed 44) achieves test INT8 window PR-AUC of 0.5721. Across 5 training seeds, the test mean ± SD is 0.499 ± 0.058 (compared to v1 INT8 0.5083, float 0.5317). Seed 44 was selected strictly based on development out-of-fold (OOF) cross-validation; all differences across seeds and between v1 and v2 are within statistical noise.*
 
 ---
 
@@ -96,9 +98,11 @@ Every metric in the "v1 Submitted" column is rigorously traced to its originatin
 
 | Model Artifact | File Path | SHA-256 Checksum | Test Window PR-AUC | Test Window ROC-AUC | Test Window Sens @ 0.49 | Test Window Spec @ 0.49 |
 |:---|:---|:---|:---:|:---:|:---:|:---:|
-| **v1 INT8** | `models/esp32/best_model_int8.tflite` | `1ca087a3da991cd085f9036e1792a432184334bc5e59f0e9dd4c1d2378b1bdea` | **0.5083** | **0.7330** | 60.44% | 79.96% |
-| **v2 INT8** | `export/v2/b_rotation_35_seed44_int8.tflite` | `a9d0ace3812bd1f7d4fbbd3e5c42383268aaaaff401c4de620276d955cad1ed3` | **0.5721** | **0.7727** | 63.19% | 73.86% |
-| **v2 Float** | `models/v2/b_rotation_35_seed44.h5` | Verified in Manifest | 0.5877 | 0.7772 | 63.46% | 74.95% |
+| **v1 INT8** | `models/esp32/best_model_int8.tflite` | `1ca087a3da991cd085f9036e1792a432184334bc5e59f0e9dd4c1d2378b1bdea` | **0.5083** (float: 0.5317) | **0.7330** | 60.44% | 79.96% |
+| **v2 INT8 (Seed 44)** | `export/v2/b_rotation_35_seed44_int8.tflite` | `a9d0ace3812bd1f7d4fbbd3e5c42383268aaaaff401c4de620276d955cad1ed3` | **0.5721** (5-seed: 0.499 ± 0.058)* | **0.7727** | 63.19% | 73.86% |
+| **v2 Float (Seed 44)** | `models/v2/b_rotation_35_seed44.h5` | Verified in Manifest | 0.5877 | 0.7772 | 63.46% | 74.95% |
+
+*\*Seed Selection & Statistical Noise: The deployed v2 model uses Seed 44 (INT8 test window PR-AUC 0.5721). Across all 5 training seeds, test INT8 PR-AUC is 0.499 ± 0.058 (compared to v1 INT8 0.5083, float 0.5317). Seed 44 was selected strictly based on development out-of-fold (OOF) cross-validation; all test differences across seeds and between v1 and v2 are within statistical noise.*
 
 ---
 

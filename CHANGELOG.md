@@ -46,7 +46,7 @@ All notable changes to the Parkinson's Freezing of Gait (FoG) ESP32 project are 
 ### Changed
 - Replaced Arduino Nano 33 BLE deployment with ESP32-WROOM-32 hardware target.
 - Harmonized all class signatures, header APIs, and register-level drivers.
-- Selected `Improved_ResCNN` (43,393 parameters) via strictly validation-based model selection (0.9107 score), achieving 100% (18/18) episode sensitivity on held-out test subjects.
+- Selected Improved_ResCNN (43,393 parameters) via strictly validation-based model selection (0.9107 score); hackathon submission deck reported 100% (18/18) test episode catch under uncalibrated window-level evaluation (subsequently audited to 12/18 in v1 and 10/18 in v2 under continuous streaming FSM).
 - Replaced dummy single-sample repeated golden vectors with true 100x6 temporal windows.
 
 ### Removed

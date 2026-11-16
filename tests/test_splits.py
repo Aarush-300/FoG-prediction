@@ -3,12 +3,21 @@ Unit Tests for Dataset Splits and Leakage Verification.
 Guarantees strict subject-independence and trial isolation across train, val, and test sets.
 """
 
+import os
 import json
 import pytest
 import numpy as np
 
 def test_subject_disjointness():
     """Verify strictly zero subject overlap between Train, Validation, and Test sets."""
+    meta_files = [
+        "data/processed/train_meta.json",
+        "data/processed/val_meta.json",
+        "data/processed/test_meta.json"
+    ]
+    if not all(os.path.exists(f) for f in meta_files):
+        pytest.skip("Processed split metadata files not found in data/processed/ (run src/preprocess.py)")
+
     with open("data/processed/train_meta.json") as f:
         train_meta = json.load(f)
     with open("data/processed/val_meta.json") as f:
@@ -35,6 +44,14 @@ def test_subject_disjointness():
 
 def test_trial_isolation():
     """Verify that no trial (subjectID, sessionID, taskID) appears in more than one split partition."""
+    meta_files = [
+        "data/processed/train_meta.json",
+        "data/processed/val_meta.json",
+        "data/processed/test_meta.json"
+    ]
+    if not all(os.path.exists(f) for f in meta_files):
+        pytest.skip("Processed split metadata files not found in data/processed/ (run src/preprocess.py)")
+
     with open("data/processed/train_meta.json") as f:
         train_meta = json.load(f)
     with open("data/processed/val_meta.json") as f:
@@ -52,7 +69,11 @@ def test_trial_isolation():
 
 def test_dataset_arrays_consistency():
     """Verify data array shapes and alignment between features and labels in npz."""
-    data = np.load("data/processed/fog_dataset.npz")
+    npz_path = "data/processed/fog_dataset.npz"
+    if not os.path.exists(npz_path):
+        pytest.skip("data/processed/fog_dataset.npz not found (requires dataset download and preprocessing)")
+
+    data = np.load(npz_path)
     
     assert 'X_train' in data and 'y_train_bin' in data
     assert 'X_val' in data and 'y_val_bin' in data

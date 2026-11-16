@@ -19,10 +19,10 @@ flowchart TD
         CheckReady["Check if 25 New Samples (0.5s) Accumulated"] -->|Window Ready| PopWin["Extract 100x6 Window (2.0s)"]
         PopWin --> ZScore["Normalize with Offline Scaler Constants (Mean, Std)"]
         ZScore --> Quant["Quantize Float32 -> INT8 (Scale: 0.095929, ZP: 7)"]
-        Quant --> TFLM["TensorFlow Lite Micro Interpreter<br/>Improved_ResCNN (43,393 Params, ~3.56 ms)"]
+        Quant --> TFLM["TensorFlow Lite Micro Interpreter<br/>Improved_ResCNN (43,393 Params, ~3.52 ms estimated)"]
         TFLM --> Dequant["Dequantize Output -> P(FoG Impending / Active)"]
         Dequant --> FSM["4-State Temporal Post-Processing State Machine"]
-        FSM -->|State == ACTIVE_ALERT| Haptic["LEDC PWM Motor Driver (GPIO 13)<br/>Rhythmic Cadence Cueing (3 Pulses @ 1 kHz)"]
+        FSM -->|State == ACTIVE_ALERT| Haptic["LEDC PWM Motor Driver (GPIO 13)<br/>Rhythmic Cadence Cueing (8 Pulses, 120ms ON / 420ms OFF, 1s Blanking)"]
     end
 
     RingBuf -.->|Shared Memory Protection| PopWin

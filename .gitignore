@@ -52,6 +52,13 @@ htmlcov/
 data/raw/*.csv
 data/raw/sensor_data.csv
 
+# Processed Dataset Arrays (Generated via src/preprocess.py)
+data/processed/*.npz
+
+# Intermediate Development Models (6-Fold Cross-Validation Weights)
+models/v2_dev/
+
+
 # Archives & Temporary Backups
 *.zip
 *.tar.gz
