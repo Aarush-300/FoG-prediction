@@ -1,5 +1,5 @@
 {
-  "decision": "PREDICTION_CLAIM_SUPPORTED",
+  "decision": "WEAK_SIGNAL_PRESENT",
   "decision_text": "PASS: Signal check passed. Proceed with predictive early warning formulation.",
   "criteria": {
     "rescnn_pooled_roc_auc": 0.7339412607527709,
@@ -1259,5 +1259,11 @@
       "max_raw_early": 0.5748,
       "crosses_threshold_0_49": false
     }
-  ]
+  ],
+  "erratum": {
+    "date": "2026-11-16",
+    "prior_decision": "PREDICTION_CLAIM_SUPPORTED",
+    "updated_decision": "WEAK_SIGNAL_PRESENT",
+    "reason": "The matched-normal control difference was +18.8 points with subject-bootstrap 95% CI [-11.5, +47.9], which includes zero, per-subject ROC-AUC exceeded 0.6 in 5 of 9 subjects, and strict sensitivity of the deployable pipeline is 4-19%."
+  }
 }
