@@ -114,3 +114,52 @@ def test_alarm_fsm_transitions():
     detector.update(0.10, delta_time_ms=1000)
     s6 = detector.update(0.10, delta_time_ms=1500)
     assert s6 == 0, "Expected return to NORMAL after cooldown elapsed"
+
+def test_synthetic_trial_lead_time_verification():
+    """
+    Harness verification: Synthetic trial with known freeze onset at 30.0s.
+    Confirms that alert time matches the window end timestamp, and that
+    lead time = onset_time - alert_time is accurately computed.
+    """
+    from src.eval_pipeline import FoGFSM
+    
+    # Synthetic trial parameters
+    fs = 50.0
+    known_onset_s = 30.0
+    known_offset_s = 35.0
+    
+    fsm = FoGFSM(high=0.49, low=0.29, confirm=2, cooldown_ms=3000, alpha=0.60)
+    
+    # 2.0s windows with 0.5s stride
+    # Windows end at 2.0s, 2.5s, ..., 28.0s, 28.5s, 29.0s, 29.5s, 30.0s, ...
+    alerts = []
+    
+    # Generate windows from t=0 to t=40s
+    for end_s in np.arange(2.0, 40.5, 0.5):
+        now_ms = int(round(end_s * 1000))
+        # Impending pre-freeze elevated risk starts at window ending at 28.5s
+        if end_s >= 28.5 and end_s <= 32.0:
+            prob = 0.85
+        else:
+            prob = 0.05
+            
+        state, fired = fsm.update(prob, now_ms)
+        if fired:
+            alerts.append(end_s)
+            
+    # Confirm alert triggered
+    assert len(alerts) > 0, "Expected an alert to be fired"
+    first_alert_time = alerts[0]
+    
+    # At end_s = 28.5s: EMA = 0.60 * 0.85 = 0.51 >= 0.49 (confirm count = 1 -> WARNING)
+    # At end_s = 29.0s: EMA = 0.60 * 0.85 + 0.40 * 0.51 = 0.714 >= 0.49 (confirm count = 2 -> ACTIVE_ALERT)
+    # Expected alert time is exactly window end time = 29.0s
+    assert first_alert_time == 29.0, f"Expected alert time 29.0s, got {first_alert_time}"
+    
+    # Lead time = known_onset_s - alert_time = 30.0 - 29.0 = 1.0s
+    lead_time = known_onset_s - first_alert_time
+    assert lead_time == 1.0, f"Expected lead time 1.0s, got {lead_time}"
+    
+    # Strict sensitivity criterion: onset - 3.0s <= t <= onset - 0.5s (27.0s to 29.5s)
+    is_strict = (known_onset_s - 3.0 <= first_alert_time <= known_onset_s - 0.5)
+    assert is_strict, f"Alert at {first_alert_time}s must be strictly in [27.0, 29.5]s"
