@@ -1,4 +1,5 @@
 #include "imu_sensor.h"
+#include <math.h>
 
 // MPU6050 Register Map
 #define MPU6050_REG_SMPLRT_DIV    0x19
@@ -38,9 +39,8 @@ bool IMUSensor::begin(int sda_pin, int scl_pin) {
     if (!writeRegister(MPU6050_REG_PWR_MGMT_1, 0x01)) return false;
     delay(10);
 
-    // 3. Configure Digital Low-Pass Filter (DLPF_CFG = 3 -> 44 Hz Accel / 42 Hz Gyro bandwidth)
-    // Prevents high-frequency aliasing at 50 Hz sampling frequency
-    if (!writeRegister(MPU6050_REG_CONFIG, 0x03)) return false;
+    // 3. Configure Digital Low-Pass Filter (Step 3.5: DLPF_CFG = 4 -> 21 Hz cutoff, 8.5 ms delay)
+    if (!writeRegister(MPU6050_REG_CONFIG, IMU_DLPF_CFG)) return false;
 
     // 4. Configure Sample Rate Divider (SMPLRT_DIV = 19 -> 1000 Hz / (1 + 19) = 50 Hz internal sampling)
     if (!writeRegister(MPU6050_REG_SMPLRT_DIV, 0x13)) return false;
@@ -52,11 +52,11 @@ bool IMUSensor::begin(int sda_pin, int scl_pin) {
     if (!writeRegister(MPU6050_REG_GYRO_CONFIG, 0x08)) return false;
 
     m_initialized = true;
-    Serial.println(F("[IMU] MPU6050 configured successfully (+/-2g, +/-500dps, DLPF 44Hz, 50Hz ODR)."));
+    Serial.printf("[IMU] MPU6050 configured (+/-2g, +/-500dps, DLPF %d [21 Hz], 50Hz ODR).\n", IMU_DLPF_CFG);
     return true;
 }
 
-bool IMUSensor::calibrate(int num_samples) {
+bool IMUSensor::calibrateGyro(int num_samples) {
     if (!m_initialized) {
         Serial.println(F("[IMU] Error: Cannot calibrate uninitialized sensor!"));
         return false;
@@ -113,16 +113,70 @@ bool IMUSensor::readSample(float* out_sample6) {
     int16_t rgy = (int16_t)((raw[10] << 8) | raw[11]);
     int16_t rgz = (int16_t)((raw[12] << 8) | raw[13]);
 
-    // Accelerometer: convert raw LSB to g
-    out_sample6[0] = (float)rax / MPU6050_ACCEL_LSB_PER_G;
-    out_sample6[1] = (float)ray / MPU6050_ACCEL_LSB_PER_G;
-    out_sample6[2] = (float)raz / MPU6050_ACCEL_LSB_PER_G;
+    // Convert raw LSB to physical units
+    float raw_acc[3] = {
+        (float)rax / MPU6050_ACCEL_LSB_PER_G,
+        (float)ray / MPU6050_ACCEL_LSB_PER_G,
+        (float)raz / MPU6050_ACCEL_LSB_PER_G
+    };
+    float raw_gyr[3] = {
+        ((float)rgx / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_x,
+        ((float)rgy / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_y,
+        ((float)rgz / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_z
+    };
 
-    // Gyroscope: convert raw LSB to deg/s and subtract stationary bias
-    out_sample6[3] = ((float)rgx / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_x;
-    out_sample6[4] = ((float)rgy / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_y;
-    out_sample6[5] = ((float)rgz / MPU6050_GYRO_LSB_PER_DPS) - m_gyro_bias_z;
+    // Apply compile-time IMU_AXIS_ROTATION matrix (Step 3.5)
+    for (int i = 0; i < 3; i++) {
+        out_sample6[i] = IMU_AXIS_ROTATION[i][0] * raw_acc[0] +
+                         IMU_AXIS_ROTATION[i][1] * raw_acc[1] +
+                         IMU_AXIS_ROTATION[i][2] * raw_acc[2];
 
+        out_sample6[i + 3] = IMU_AXIS_ROTATION[i][0] * raw_gyr[0] +
+                             IMU_AXIS_ROTATION[i][1] * raw_gyr[1] +
+                             IMU_AXIS_ROTATION[i][2] * raw_gyr[2];
+    }
+
+    return true;
+}
+
+bool IMUSensor::measureStationaryOrientation(float out_acc[3], float* out_angle_deg, int num_samples) {
+    if (!m_initialized) return false;
+
+    float sum_ax = 0.0f, sum_ay = 0.0f, sum_az = 0.0f;
+    int valid = 0;
+    float s[6];
+
+    for (int i = 0; i < num_samples; i++) {
+        if (readSample(s)) {
+            sum_ax += s[0];
+            sum_ay += s[1];
+            sum_az += s[2];
+            valid++;
+        }
+        delay(20); // 50 Hz interval
+    }
+
+    if (valid < num_samples / 2) return false;
+
+    out_acc[0] = sum_ax / valid;
+    out_acc[1] = sum_ay / valid;
+    out_acc[2] = sum_az / valid;
+
+    // Compute angle vs training nominal reference: [-1.006, 0.132, 0.113]
+    float dot = out_acc[0] * IMU_NOMINAL_GRAVITY_REF[0] +
+                out_acc[1] * IMU_NOMINAL_GRAVITY_REF[1] +
+                out_acc[2] * IMU_NOMINAL_GRAVITY_REF[2];
+
+    float norm_meas = sqrtf(out_acc[0] * out_acc[0] + out_acc[1] * out_acc[1] + out_acc[2] * out_acc[2]);
+    float norm_ref = sqrtf(IMU_NOMINAL_GRAVITY_REF[0] * IMU_NOMINAL_GRAVITY_REF[0] +
+                           IMU_NOMINAL_GRAVITY_REF[1] * IMU_NOMINAL_GRAVITY_REF[1] +
+                           IMU_NOMINAL_GRAVITY_REF[2] * IMU_NOMINAL_GRAVITY_REF[2]);
+
+    float cos_theta = dot / (norm_meas * norm_ref);
+    if (cos_theta > 1.0f) cos_theta = 1.0f;
+    if (cos_theta < -1.0f) cos_theta = -1.0f;
+
+    *out_angle_deg = acosf(cos_theta) * (180.0f / 3.1415926535f);
     return true;
 }
 

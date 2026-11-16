@@ -1,8 +1,8 @@
 """
 Model Zoo for Parkinson's Freezing-of-Gait Detection on ESP32.
 Contains candidate architectures:
-  1. Baseline Tiny 1D-CNN (4.5K params)
-  2. Improved Residual 1D-CNN (Res-CNN, ~30K params)
+  1. Baseline Tiny 1D-CNN (4,465 params)
+  2. Improved Residual 1D-CNN (Improved_ResCNN, 43,393 params)
   3. CNN + GRU Hybrid (~25K params)
   4. CNN + LSTM Hybrid (~35K params)
   5. Dilated Temporal Convolutional Network (TCN, ~40K params)
@@ -36,9 +36,9 @@ def build_baseline_cnn(input_shape=(100, 6), dropout_rate=0.3):
 
 def build_improved_res_cnn(input_shape=(100, 6), dropout_rate=0.3):
     """
-    Improved Multi-Scale Residual 1D-CNN (~28K params).
-    Uses parallel multi-scale kernels (k=3, k=5) and residual skip connections
-    to simultaneously capture fast tremor (4-8 Hz) and cyclic stride breakdown (1-2 Hz).
+    Improved Residual 1D-CNN (43,393 params).
+    Uses sequential convolutional blocks with residual skip connections
+    to extract hierarchical gait features across temporal windows.
     """
     inputs = layers.Input(shape=input_shape, name='imu_input')
     

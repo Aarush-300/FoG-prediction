@@ -50,9 +50,11 @@ def test_int8_tflite_tensor_details():
     assert -128 <= out_zp <= 127
 
 def test_model_data_header_integrity():
-    """Verify that firmware/ESP32_FoG/model_data.h accurately matches the INT8 TFLite model binary."""
+    """Verify that firmware/ESP32_FoG/model_data.h accurately matches the deployed INT8 TFLite model binary."""
     header_path = "firmware/ESP32_FoG/model_data.h"
-    int8_path = "models/esp32/best_model_int8.tflite"
+    v2_path = "export/v2/b_rotation_35_seed44_int8.tflite"
+    v1_path = "models/esp32/best_model_int8.tflite"
+    int8_path = v2_path if os.path.exists(v2_path) else v1_path
     
     assert os.path.exists(header_path), f"Missing {header_path}"
     

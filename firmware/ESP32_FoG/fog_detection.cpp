@@ -4,12 +4,14 @@ FoGDetectionEngine::FoGDetectionEngine(float high_threshold,
                                        float low_threshold,
                                        int consecutive_confirmations,
                                        unsigned long cooldown_ms,
-                                       float ema_alpha)
+                                       float ema_alpha,
+                                       int rearm_policy)
     : m_high_threshold(high_threshold),
       m_low_threshold(low_threshold),
       m_consecutive_needed(consecutive_confirmations),
       m_cooldown_ms(cooldown_ms),
       m_ema_alpha(ema_alpha),
+      m_rearm_policy(rearm_policy),
       m_state(FOG_STATE_NORMAL),
       m_smoothed_prob(0.0f),
       m_last_raw_prob(0.0f),
@@ -22,12 +24,14 @@ FoGDetectionEngine::FoGDetectionEngine(float high_threshold,
 bool FoGDetectionEngine::begin(float high_threshold,
                               float low_threshold,
                               int consecutive_confirmations,
-                              unsigned long cooldown_ms)
+                              unsigned long cooldown_ms,
+                              int rearm_policy)
 {
     m_high_threshold = high_threshold;
     m_low_threshold = low_threshold;
     m_consecutive_needed = consecutive_confirmations;
     m_cooldown_ms = cooldown_ms;
+    m_rearm_policy = rearm_policy;
     reset();
     return true;
 }
@@ -40,13 +44,13 @@ void FoGDetectionEngine::reset() {
     m_last_alert_time = 0;
 }
 
-FoGState FoGDetectionEngine::update(float raw_probability) {
+FoGState FoGDetectionEngine::update(float raw_probability, unsigned long now_ms) {
     m_last_raw_prob = raw_probability;
 
     // 1. Exponential Moving Average (EMA) smoothing
     m_smoothed_prob = (m_ema_alpha * raw_probability) + ((1.0f - m_ema_alpha) * m_smoothed_prob);
 
-    unsigned long now = millis();
+    unsigned long now = (now_ms > 0) ? now_ms : millis();
 
     // 2. State Machine Transitions
     switch (m_state) {
@@ -73,27 +77,36 @@ FoGState FoGDetectionEngine::update(float raw_probability) {
                     m_episode_count++;
                     m_last_alert_time = now;
                 }
-            } else if (m_smoothed_prob < m_low_threshold) {
+            } else {
+                // Confirmations must be strictly consecutive:
+                // If probability drops below high, the streak is broken!
                 m_consecutive_count = 0;
-                m_state = FOG_STATE_NORMAL;
+                if (m_smoothed_prob < m_low_threshold) {
+                    m_state = FOG_STATE_NORMAL;
+                }
             }
             break;
 
         case FOG_STATE_ACTIVE_ALERT:
-            // Alert has been triggered; immediately transition to cooldown refractory period
-            // to avoid repeated jarring pulses while the patient is actively breaking the freeze
+            // Alert has fired; transition to cooldown refractory period immediately
             m_state = FOG_STATE_COOLDOWN;
             break;
 
-        case FOG_STATE_COOLDOWN:
-            // Remain in cooldown until both:
-            // 1. The refractory period has elapsed (e.g. 3.0 seconds)
-            // 2. The smoothed probability drops below the low reset threshold
-            if ((now - m_last_alert_time >= m_cooldown_ms) && (m_smoothed_prob < m_low_threshold)) {
+        case FOG_STATE_COOLDOWN: {
+            bool rearm = false;
+            unsigned long elapsed = now - m_last_alert_time;
+            if (m_rearm_policy == REARM_POLICY_TIMEOUT) {
+                rearm = (elapsed >= m_cooldown_ms);
+            } else { // REARM_POLICY_TIMEOUT_AND_LOW
+                rearm = (elapsed >= m_cooldown_ms) && (m_smoothed_prob < m_low_threshold);
+            }
+
+            if (rearm) {
                 m_consecutive_count = 0;
                 m_state = FOG_STATE_NORMAL;
             }
             break;
+        }
     }
 
     return m_state;

@@ -1,60 +1,64 @@
-# Wearable Parkinson's Freezing-of-Gait (FoG) Detection & Early Warning System
+# Wearable Parkinson's Freezing-of-Gait (FoG) Detection & Haptic Cueing System
 
-> **Note:** The version submitted to the hackathon is preserved at git tag `v1-submitted`. The current `main` contains post-submission improvements with a before/after comparison in [reports/v2/BEFORE_AFTER.md](reports/v2/BEFORE_AFTER.md).
+> **Integrity Notice:** The version submitted to the hackathon is permanently preserved at git tag `v1-submitted`. The current repository contains post-submission integrity auditing, firmware hardening, and preregistered clinical evaluations documented in [reports/v2/BEFORE_AFTER.md](reports/v2/BEFORE_AFTER.md) and [reports/v2/PREREGISTRATION.md](reports/v2/PREREGISTRATION.md).
 
-An embedded Edge-AI wearable system deployed on an **ESP32 DevKit V1 (ESP32-WROOM-32 @ 240 MHz)** with an external **InvenSense MPU6050 6-Axis IMU** and haptic motor for real-time Freezing-of-Gait (FoG) prediction in Parkinson's disease.
+An embedded TinyML wearable system deployed on an **ESP32 DevKit V1 (ESP32-WROOM-32 @ 240 MHz)** with an external **InvenSense MPU6050 6-Axis IMU** and haptic motor, functioning as a **fast freeze detector with a haptic cue** for Parkinson's disease locomotion monitoring.
+
+**Clinical Assessment Statement:** Rigorous evaluation on strictly held-out test subjects demonstrates that **v2 is not proven to be superior to v1 beyond statistical noise** (95% bootstrap confidence intervals overlap across all clinical metrics). In laboratory continuous walking data, the false-alert rate is approximately **60–120 FA/hr** (roughly one false alert every 30 to 60 seconds).
 
 ---
 
 ## 1. System Overview & Hardware Architecture
 
-The device is an ankle-worn intelligent sensor designed to monitor lower-limb kinematics during locomotion, detect impending gait freezing ([0.5, 3.0] s before clinical freeze onset), and deliver rhythmic cadence cueing to help patients overcome gait arrest.
+The device is an ankle-worn intelligent sensor designed to monitor lower-limb kinematics during locomotion, detect Freezing-of-Gait (FoG) episodes at onset, and deliver non-blocking rhythmic cadence cueing (8 pulses, 120 ms ON / 420 ms OFF) to help patients break motor blocks.
 
 ```mermaid
 flowchart LR
-    IMU["InvenSense MPU6050<br/>(6-Axis IMU @ 50 Hz)"] -->|I2C Fast Mode| ESP32["ESP32-WROOM-32<br/>(Dual Core @ 240 MHz)"]
+    IMU["InvenSense MPU6050<br/>(6-Axis IMU @ 50 Hz, DLPF 21 Hz)"] -->|I2C Fast Mode| ESP32["ESP32-WROOM-32<br/>(Dual Core @ 240 MHz)"]
     ESP32 -->|Core 0| Buf["Circular Ring Buffer<br/>(100x6 Window = 2.0s)"]
-    Buf -->|Core 1| Model["TFLM INT8 Neural Net<br/>(Improved_ResCNN, 3.56 ms)"]
-    Model --> FSM["4-State Alarm FSM<br/>(Hysteresis & Cooldown)"]
-    FSM -->|Impending / Active FoG| Motor["Haptic Motor (GPIO 13)<br/>(Cadence Vibration Cue)"]
+    Buf -->|Core 1| Model["TFLM INT8 Neural Net<br/>(Improved_ResCNN, 43.4K params)"]
+    Model --> FSM["4-State Alarm FSM<br/>(Truly Consecutive & Hysteresis)"]
+    FSM -->|Freeze Detected| Motor["Haptic Motor (GPIO 13)<br/>(8-Pulse Cadence Cue, 1s Blanking)"]
 ```
 
-### Hardware Specifications
-- **Target Microcontroller:** Espressif ESP32 DevKit V1 (ESP32-WROOM-32, Dual-Core Xtensa 32-bit LX6 @ 240 MHz, 320 KB usable SRAM, 4 MB Flash).
-- **Inertial Sensor:** InvenSense MPU6050 (GY-521 breakout board) communicating via I2C Fast Mode @ 400 kHz.
-  - Accelerometer: $\pm 2\text{ g}$ range ($16,384\text{ LSB}/g$).
-  - Gyroscope: $\pm 500^\circ/\text{s}$ range ($65.5\text{ LSB}/(\text{deg/s})$).
-  - Digital Low-Pass Filter (DLPF): 44 Hz bandwidth to eliminate mechanical foot-strike vibration noise.
-- **Haptic Feedback:** 3V DC Coin Vibration Motor driven by an N-channel MOSFET circuit via ESP32 LEDC PWM on GPIO 13.
-- **Power Supply:** 500 mAh 3.7V Wearable LiPo Battery with TP4056 USB-C charging circuit.
-  - Average System Current: **4.91 mA** (continuous monitoring).
-  - Continuous Battery Life: **101.9 hours (~4.2 days)** on a single charge.
+### Hardware Specifications & Operational Estimates
+
+| Parameter | Specification / Method | Modeled / Estimated | Measured on Device |
+|:---|:---|:---:|:---:|
+| **Microcontroller** | Espressif ESP32 DevKit V1 (ESP32-WROOM-32, 240 MHz) | Confirmed | Bench Verified |
+| **Inertial Sensor** | InvenSense MPU6050 6-Axis IMU via I2C Fast-Mode (400 kHz) | Confirmed | Bench Verified |
+| **IMU Low-Pass Filter** | On-chip DLPF register configured to 21 Hz cutoff (`IMU_DLPF_CFG 4`) | Confirmed | Bench Verified |
+| **Haptic Driver** | Logic-level MOSFET (IRLML2502/AO3400) on GPIO 13 with 10k gate pull-down | Confirmed | Bench Verified |
+| **Inference Latency** | TFLite Micro INT8 forward pass on 100x6 window (esp_timer) | **~3.52 ms** (estimated) | |
+| **TFLM SRAM Arena** | Dynamic 16-byte aligned allocation (`heap_caps_malloc`) | **~132 KB** (estimated) | |
+| **Average Current** | Continuous 50 Hz acquisition + 500 ms inference duty cycle | **~78 mA** (estimated) | |
+| **Battery Life** | Single-cell 3.7V 500 mAh wearable LiPo battery | **~6.4 hours** (estimated) | |
+| **Supply Voltage Dip** | 3.3V rail dip during motor start (with $100\mu\text{F}$ capacitor) | **< 150 mV** (estimated) | |
+
+*Hardware measurement protocol and pending verification checklist are detailed in [docs/measurements.md](docs/measurements.md).*
 
 ---
 
-## 2. Pinout & Electrical Wiring
+## 2. Pinout & Electrical Connections
 
-| MPU6050 Pin | ESP32 DevKit V1 Pin | Function / Description |
-| :--- | :--- | :--- |
-| **VCC** | **3.3V** | Regulated 3.3V DC power supply |
-| **GND** | **GND** | System common ground |
-| **SDA** | **GPIO 21** | I2C Serial Data (with internal/external 4.7k pull-up) |
-| **SCL** | **GPIO 22** | I2C Serial Clock (400 kHz Fast-Mode) |
-| **AD0** | **GND** | Sets I2C device address to `0x68` |
+| Sensor / Actuator Pin | ESP32 DevKit V1 Pin | Functional Description |
+|:---|:---|:---|
+| **MPU6050 VCC** | **3.3V** | Clean 3.3V power supply (with $0.1\ \mu\text{F}$ decoupling capacitor) |
+| **MPU6050 GND** | **GND** | System common ground |
+| **MPU6050 SDA** | **GPIO 21** | I2C Data line (400 kHz Fast-Mode) |
+| **MPU6050 SCL** | **GPIO 22** | I2C Clock line |
+| **MPU6050 AD0** | **GND** | Sets I2C peripheral address to `0x68` |
+| **MOSFET Gate** | **GPIO 13** | LEDC PWM output via $100\ \Omega$ series resistor and $10\text{ k}\Omega$ pull-down |
+| **Motor V+** | **3.3V / VBAT** | Supply rail with $100\ \mu\text{F}$ electrolytic capacitor across rails |
+| **MOSFET Drain** | **Motor (-) Lead** | Low-side driver switched by logic-level N-channel MOSFET |
 
-| Haptic Circuit | ESP32 DevKit V1 Pin | Function / Description |
-| :--- | :--- | :--- |
-| **MOSFET Gate** | **GPIO 13** | LEDC PWM (1 kHz, 8-bit duty cycle) via 100 $\Omega$ series resistor |
-| **Motor V+** | **3.3V / VBAT** | Direct connection to battery or 3.3V rail |
-| **MOSFET Source**| **GND** | Common ground with 10k $\Omega$ gate pull-down resistor |
-
-*For complete schematics and driver circuits, refer to [docs/hardware_setup.md](docs/hardware_setup.md).*
+*Detailed wiring schematics, driver topologies, and component selections are provided in [docs/hardware_setup.md](docs/hardware_setup.md).*
 
 ---
 
 ## 3. Real-Time Dual-Core FreeRTOS Architecture
 
-To eliminate sensor latency and guarantee zero dropped kinematic samples during heavy tensor calculations, tasks are partitioned symmetrically between the ESP32's dual physical cores:
+To guarantee deterministic 50 Hz sensor sampling and prevent dropped kinematic buffers during tensor operations, tasks are partitioned symmetrically across ESP32 cores with thread-safe mutex guards:
 
 ```text
 [Core 0: Priority 3 (High)]                     [Core 1: Priority 2]
@@ -63,53 +67,52 @@ To eliminate sensor latency and guarantee zero dropped kinematic samples during 
 | (vTaskDelayUntil: exactly 20 ms)  |           | (25-sample stride = 0.5 seconds)  |
 |                                   |           |                                   |
 | 1. Read MPU6050 6-axis registers  |           | 1. Extract 100x6 temporal window  |
-| 2. Subtract stationary gyro bias  |           | 2. Z-score normalize with scaler  |
-| 3. Scale to g and deg/s units     |           | 3. Quantize float32 -> int8       |
-| 4. Push sample to circular buffer | =Mutex==> | 4. Execute INT8 TFLM Inference    |
-+-----------------------------------+           | 5. 4-state alarm FSM & cooldown   |
-                                                | 6. Non-blocking LEDC PWM cueing   |
+| 2. Apply DLPF (21 Hz cutoff)      |           | 2. Z-score normalize with scaler  |
+| 3. Apply 3x3 axis rotation matrix |           | 3. Quantize float32 -> int8       |
+| 4. Push sample to circular buffer | =Mutex==> | 4. Invoke INT8 TFLM (Mutex Guard) |
++-----------------------------------+           | 5. 4-State FSM (Truly Consecutive)|
+                                                | 6. Haptic Cueing (1s Blanking)    |
                                                 +-----------------------------------+
 ```
 
-- **Core 0 Acquisition:** Executes every 20,000 $\mu\text{s}$ (50 Hz). Core active duty cycle is only **1.25%**, leaving 98.7% idle headroom.
-- **Core 1 Inference:** Executes every 500 ms when 25 new samples accumulate. Total inference latency on `Improved_ResCNN` is **3.56 ms** (only **0.71% Core 1 load**).
+- **Thread Safety:** All TFLM interpreter `predict()` invocations are protected by a dedicated FreeRTOS mutex to eliminate race conditions between the Core 1 inference task and interactive serial diagnostic routines.
+- **Haptic Blanking Window:** Implements `HAPTIC_BLANKING_MS 1000` holding FSM state during vibration and 1000 ms afterwards, ensuring motor vibration artifacts cannot trigger false freeze alarms.
 
 ---
 
-## 4. Rigorous Machine Learning Validation & Results
+## 4. Known Clinical & Technical Limitations
 
-Model selection prioritizes **genuinely achieved predictive performance on strictly held-out subject-independent validation data** without test set leakage.
+Under pre-registered claim policy Rule 1.4, system performance is reported with full transparency:
 
-### Multi-Model Benchmark Comparison Table
-
-| Architecture | Parameters | Val Selection Score | Val PR-AUC | Val Ep Sens | Val F1 | Test Ep Sens (Caught) | Test PR-AUC | Test F1 | Test Specificity | Subj 22 Caught | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Baseline 1D-CNN** | 4,465 | 0.8641 | 0.8213 | 100.0% | 0.7672 | 94.4% (17/18) | 0.4642 | 0.3854 | 87.0% | 4/4 | Candidate |
-| **Improved_ResCNN** | 43,393 | **0.9107** | **0.8922** | **100.0%** | **0.8229** | **100.0% (18/18)** | **0.5317** | **0.4803** | **82.1%** | **4/4** | **SELECTED BEST** |
-| **CNN + GRU** | 14,433 | 0.8820 | 0.8448 | 100.0% | 0.7977 | 100.0% (18/18) | 0.4716 | 0.4035 | 83.1% | 4/4 | Candidate |
-| **CNN + LSTM** | 16,929 | 0.8777 | 0.8420 | 100.0% | 0.7834 | 100.0% (18/18) | 0.5262 | 0.4734 | 90.0% | 4/4 | Candidate |
-| **Dilated TCN** | 27,009 | 0.8834 | 0.8594 | 100.0% | 0.7687 | 100.0% (18/18) | 0.5395 | 0.4670 | 87.7% | 4/4 | Candidate |
-
-### Scientific Resolution of Subject 22
-- **Root-Cause Diagnostic:** Static gravity analysis revealed Subject 22 had an extreme $-65.6^\circ$ mounting roll tilt ($Y$-acceleration static bias of $-0.253\text{ g}$ vs population nominal $+0.111\text{ g}$), combined with high tremor power ($FI = 1.584$).
-- **Solution:** Integrated $\pm 35^\circ$ 3D Euler rotation augmentation directly in physical Euclidean metric space ($g$ and $\text{deg/s}$) prior to normalization.
-- **Outcome:** `Improved_ResCNN` caught **4/4 (100.0%) of all Subject 22 freezing episodes** and achieved **100.0% (18/18) episode sensitivity** across all held-out test subjects.
-
-### Quantization & Memory Footprint
-- **Quantization:** Full Integer INT8 Post-Training Quantization (PTQ).
-- **PR-AUC Retention:** **95.58%** relative to unquantized Float32 Keras model.
-- **Model Flash Size:** **67.4 KB** (69,008 bytes, 1.65% of ESP32's 4 MB Flash).
-- **Tensor Arena:** **199.2 KB** allocated in internal fast SRAM (62.3% of 320 KB SRAM).
-
-*For complete evaluation details, see [docs/model_evaluation.md](docs/model_evaluation.md).*
+1. **Detection Rather Than Early Prediction:**
+   - **Strict Episode Sensitivity (Lead $\ge 0.5$ s):** Measured at **5.0%** [95% CI: 0.0%, 16.7%] on the test cohort.
+   - **Relaxed Episode Sensitivity (Lead $\ge 0.0$ s):** Measured at **5.0%** [95% CI: 0.0%, 16.7%].
+   - **Median Detection Delay:** **+1.00 s** [95% CI: 0.00 s, 1.00 s] relative to freeze onset.
+   - *Clinical Consequence:* The system functions as a **fast freeze detector with a haptic cue**, detecting freeze episodes promptly after onset, rather than providing multi-second advance warning.
+2. **False Alert Burden in Continuous Gait:**
+   - On held-out test subjects, the deployed `BALANCED` preset yields **118.4 FA/hr** [95% CI: 52.6, 204.3], corresponding to approximately **one false alert every 30.4 seconds** of active walking.
+   - On development data, out-of-fold false alarm rates range from **58.6 FA/hr** (`LOW_ALARM`, 1 every 61.4 s) to **112.0 FA/hr** (`BALANCED`, 1 every 32.1 s).
+3. **Episode Catch Breakdown by Test Subject:**
+   - **Subject 20:** Caught 3 of 6 episodes (50.0%).
+   - **Subject 21:** Caught 8 of 10 episodes (80.0%).
+   - **Subject 22:** Caught 0 of 4 episodes (0.0%).
+   - **Subject 18:** 0 episodes (healthy control / walking baseline).
+   - **Total Test Catch Rate:** **11 of 20 raw transitions (55.0%)** or **10 of 18 canonical episodes (55.6%)**.
+4. **Subject 22 Postural Tilt Findings:**
+   - Subject 22 exhibited a static resting acceleration bias of $Y = -0.253\text{ g}$ (vs cohort nominal $+0.111\text{ g}$) and a roll offset of $-65.6^\circ$.
+   - On test data, v1 caught 2 of 4 episodes while v2 caught 0 of 4 episodes. No causal claim is made regarding sensor tilt and catch rate; data are reported factually.
+5. **Seed-to-Seed Stochastic Variance:**
+   - Across 5 training seeds for the adopted architecture, test window PR-AUC varied between 0.5644 and 0.5912 (mean 0.5784), and sensitivity @ 0.49 varied between 61.3% and 64.6%.
+6. **Optimism Gap:**
+   - In nested Leave-One-Fold-Out (LOFO) validation on development data, the `BALANCED` preset showed an optimism gap of **10.14 percentage points in lenient sensitivity** (70.53% in-sample vs 60.39% nested LOFO) and **+10.45 FA/hr** (112.00 in-sample vs 122.45 nested LOFO).
 
 ---
 
-## 5. Firmware Flashing & Serial Diagnostics
+## 5. Firmware Flashing & Diagnostic Commands
 
 ### Prerequisites
 1. **Arduino IDE 2.x** or **VS Code with PlatformIO**.
-2. **ESP32 Board Support Package:** Version 2.0.14 or later.
+2. **ESP32 Board Support Package:** Version 2.0.14 or later (or Core 3.x).
 3. **Libraries:** `TensorFlowLite_ESP32` (or embedded TFLM runtime), `Wire`.
 
 ### Flashing Steps
@@ -119,9 +122,11 @@ Model selection prioritizes **genuinely achieved predictive performance on stric
 4. Click **Upload** and open Serial Monitor at **115200 baud**.
 
 ### Interactive Serial Commands
-- `t`: Runs the built-in **On-Device Golden Vector Self-Test** across 5 reference 100x6 gait windows.
-- `c`: Re-runs **Stationary Gyroscope Bias Calibration** (sensor must remain still for 4 seconds).
-- `s`: Prints real-time statistics: total inferences, detected FoG events, latency, and free internal heap.
+- **`t` (Self-Test):** Runs the on-device self-test against all 10 golden reference gait windows, asserting $|\Delta p| \le \text{tolerance}$.
+- **`b` (Benchmark):** Executes 100 consecutive inferences on golden vector #1, printing min/mean/max latency (via `esp_timer`), dynamic tensor arena capacity and used bytes, free/minimum heap, and task stack high-water marks.
+- **`o` (Mounting Check):** Averages 2 seconds of stationary acceleration and computes the angular deviation from the training nominal coordinate frame `[-1.006, 0.132, 0.113] g`.
+- **`c` (Calibrate):** Recalibrates gyroscope stationary zero-rate offset.
+- **`s` (Status):** Prints real-time statistics: active preset, total inferences, detected FoG events, last latency, and free internal heap.
 
 ---
 
@@ -134,34 +139,38 @@ The project includes an end-to-end unit test suite in `tests/`:
 pytest tests/ -v
 ```
 
-Tests include:
-- `tests/test_preprocessing.py`: Validates polyphase 60 Hz $\to$ 50 Hz resampling, window geometry, and clinical label semantics.
-- `tests/test_splits.py`: Guarantees strictly zero subject overlap and trial isolation across train, val, and test splits.
-- `tests/test_model_export.py`: Verifies TFLite INT8 I/O tensor shapes, data types, and C header size matching.
-- `tests/test_golden_vectors.py`: Asserts numerical agreement between host JSON targets and INT8 interpreter outputs ($|\Delta p| \le 0.05$).
-- `tests/test_inference.py`: Simulates continuous normal walking dynamics and tests 4-state alarm FSM state transitions.
+Key verification tests include:
+- `tests/test_fsm_equivalence.py`: Compares C++ firmware FSM (compiled via g++) against Python reference over 10,000 steps.
+- `tests/test_golden_vectors.py`: Asserts numerical agreement between host targets and INT8 interpreter outputs ($|\Delta p| \le 0.05$).
+- `tests/test_splits.py`: Guarantees strictly zero subject overlap across train, val, and test splits.
+- `tests/test_reconcile_denominators.py`: Mathematically reconciles window counts, tail windows, and normal gait denominators.
+- `tests/test_train_cv.py`: Enforces inner validation subject disjointness for early stopping without test data exposure.
 
 ---
 
-## 7. Project Documentation
+## 7. Project Documentation Index
 
-- [System Architecture](docs/architecture.md): Detailed multi-core FreeRTOS and digital signal processing breakdown.
-- [Hardware Setup & Schematics](docs/hardware_setup.md): Complete wiring diagram, component BOM, and ankle mounting instructions.
-- [Model Evaluation & Benchmarking](docs/model_evaluation.md): Subject-independent validation methodology and Subject 22 investigation.
-- [Troubleshooting Guide](docs/troubleshooting.md): Diagnosis of common I2C errors, memory allocation issues, and LEDC PWM configuration.
-- [Dataset Guide](data/README.md): Instructions and SHA256 checksums for raw IMU sensor data.
+- [Before-and-After Evaluation Report](reports/v2/BEFORE_AFTER.md): Comprehensive test cohort comparison between v1 submitted deck and v2 audited artifacts.
+- [Pre-Registration Protocol](reports/v2/PREREGISTRATION.md): Pre-registered operating point rules, claim policy, and errata.
+- [Operating-Point Report](reports/v2/operating_point.md): Development cohort INT8 OOF Pareto frontier and dual-preset selection.
+- [Test Access Log](reports/v2/test_access_log.md): Record of test set access, execution errors, and isolation guarantees.
+- [Physical Measurements Checklist](docs/measurements.md): Laboratory bench test targets and pending hardware measurements.
+- [Hardware Setup & Wiring](docs/hardware_setup.md): Schematics, MOSFET selection rules, decoupling guidelines, and mounting instructions.
+- [Troubleshooting Guide](docs/troubleshooting.md): Diagnosis of common I2C errors, memory allocation, and serial commands.
 
 ---
 
-## 8. Citation
+## 8. Authors & Citation
 
-If you use this project, hardware design, or algorithms in academic or clinical research, please cite:
+**Authors:** Team KinetiX: Shambhavi, Aryan Singh, Aarush Relhan, Archit Dhingra.  
+**Repository:** [https://github.com/Aarush-300/FoG-prediction](https://github.com/Aarush-300/FoG-prediction)
+
 ```bibtex
 @software{fog_esp32_2026,
-  author = {Antigravity Research Team},
-  title = {ESP32 Parkinson's Disease Freezing of Gait Real-Time Prediction System},
+  author = {Shambhavi and Singh, Aryan and Relhan, Aarush and Dhingra, Archit},
+  title = {ESP32 Parkinson's Disease Freezing of Gait Real-Time Detector and Haptic Cueing System},
   year = {2026},
-  version = {2.0.0},
-  url = {https://github.com/aarush/parkinsons-fog-esp32}
+  version = {2.1.0},
+  url = {https://github.com/Aarush-300/FoG-prediction}
 }
 ```

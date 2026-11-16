@@ -4,47 +4,42 @@
 #include <Arduino.h>
 #include "model_config.h"
 
-/**
- * @brief Non-blocking Haptic Tactile Cueing Driver for ESP32.
- * 
- * Drives an eccentric rotating mass (ERM) or linear resonant actuator (LRA)
- * vibration motor via an N-channel MOSFET on GPIO 13.
- * Supports ESP32 Arduino Core 2.x and 3.x LEDC PWM architectures.
- */
 class HapticFeedback {
 public:
     HapticFeedback(int motor_pin = HAPTIC_MOTOR_PIN,
                    int pwm_channel = HAPTIC_PWM_CHANNEL,
                    int default_intensity = HAPTIC_DEFAULT_DUTY_CYCLE);
-                   
-    // Initialize GPIO and LEDC PWM peripheral
+
     bool begin();
     
-    // Trigger rhythmic sensory cueing pattern (non-blocking)
+    // Trigger rhythmic cadence cueing: 8 pulses, 120 ms on, 420 ms off
     void triggerCadenceCue(int num_pulses = HAPTIC_PULSES_PER_CUE,
                            int pulse_ms = HAPTIC_PULSE_DURATION_MS,
                            int pause_ms = HAPTIC_PULSE_PAUSE_MS);
-                           
-    // Trigger high-urgency SOS emergency alert (e.g. on sensor disconnect)
+
+    // Fast warning SOS pattern for critical system errors
     void triggerEmergencyAlert();
-    
-    // Advance non-blocking pulse state machine
-    void update();
-    
-    // Immediate stop
+
+    // Immediately halt vibration motor
     void stop();
-    
-    // Intensity configuration (0 to 255)
-    void setIntensity(uint8_t duty_cycle) { m_intensity = duty_cycle; }
+
+    // Periodic state machine update (call from Core 1 task loop)
+    void update();
+
+    // Query status
+    bool isActive() const { return m_active; }
     bool isVibrating() const { return m_is_vibrating; }
     
+    // Blanking query: true while motor is actively running AND for HAPTIC_BLANKING_MS (1000 ms) afterwards
+    bool isBlankingActive() const;
+
 private:
     void setMotorPower(uint8_t duty);
-    
+
     int m_motor_pin;
     int m_pwm_channel;
-    uint8_t m_intensity;
-    
+    int m_intensity;
+
     bool m_active;
     bool m_is_vibrating;
     int m_target_pulses;
@@ -52,6 +47,7 @@ private:
     int m_pulse_ms;
     int m_pause_ms;
     unsigned long m_state_timer;
+    unsigned long m_vibration_end_time;
 };
 
 #endif // HAPTIC_FEEDBACK_H

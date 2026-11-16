@@ -1,0 +1,6 @@
+{
+  "input_scale": 0.10611961036920547,
+  "input_zero_point": 2,
+  "output_scale": 0.00390625,
+  "output_zero_point": -128
+}

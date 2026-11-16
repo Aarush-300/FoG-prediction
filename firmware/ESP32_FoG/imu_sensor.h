@@ -5,33 +5,28 @@
 #include <Wire.h>
 #include "model_config.h"
 
-/**
- * @brief Register-level Driver for InvenSense MPU6050 6-Axis IMU on ESP32.
- * 
- * Configures I2C Fast Mode (400 kHz), DLPF 44 Hz, 50 Hz sample rate,
- * verifies device identity (WHO_AM_I == 0x68), calibrates stationary gyroscope bias,
- * and outputs physical units: Accel in g, Gyro in deg/s.
- */
 class IMUSensor {
 public:
     IMUSensor();
     
-    // Initialize I2C, verify WHO_AM_I, and configure registers
-    bool begin(int sda_pin = MPU6050_SDA_PIN, int scl_pin = MPU6050_SCL_PIN);
+    // Initialize I2C interface, verify WHO_AM_I, set DLPF (21 Hz) and sample rates
+    bool begin(int sda_pin = PIN_I2C_SDA, int scl_pin = PIN_I2C_SCL);
     
-    // Stationary gyroscope zero-rate bias calibration
-    bool calibrate(int num_samples = 200);
-    bool calibrateGyro(int num_samples = 200) { return calibrate(num_samples); }
+    // Stationary gyroscope bias calibration
+    bool calibrateGyro(int num_samples = 200);
     
-    // Read 6-axis IMU sample in physical units: [ax, ay, az, gx, gy, gz]
-    // Accel in g (+/- 2g range), Gyro in deg/s (+/- 500 dps range)
+    // Read calibrated and axis-rotated 6-channel IMU vector
+    // [acc_x, acc_y, acc_z] in g, [gyro_x, gyro_y, gyro_z] in deg/s
+    // Returns true on successful I2C read, false on bus error
     bool readSample(float* out_sample6);
     
-    // Status queries
+    // Measure stationary orientation over 2 seconds (100 samples at 50 Hz)
+    // Computes average acceleration vector and angle vs training reference [-1.006, 0.132, 0.113] g
+    bool measureStationaryOrientation(float out_acc[3], float* out_angle_deg, int num_samples = 100);
+    
+    // Sensor status queries
+    bool isInitialized() const { return m_initialized; }
     bool isCalibrated() const { return m_calibrated; }
-    float getGyroBiasX() const { return m_gyro_bias_x; }
-    float getGyroBiasY() const { return m_gyro_bias_y; }
-    float getGyroBiasZ() const { return m_gyro_bias_z; }
     
 private:
     bool writeRegister(uint8_t reg, uint8_t value);

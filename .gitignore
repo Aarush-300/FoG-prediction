@@ -45,6 +45,7 @@ htmlcov/
 *.hex
 *.bin
 *.elf
+*.exe
 
 # Dataset Raw CSV (Exceeds GitHub 100 MB Limit)
 # Use src/download_dataset.py or see data/README.md to obtain raw data

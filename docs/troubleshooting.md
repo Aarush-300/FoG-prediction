@@ -20,24 +20,19 @@
 
 ### Issue 3: `TFLite Micro: AllocateTensors() failed` or Internal SRAM overflow
 - **Cause:** Tensor arena exceeds available contiguous internal memory.
-- **Solution:** Verify `TENSOR_ARENA_SIZE_BYTES` in `firmware/ESP32_FoG/model_config.h` is set to `(220 * 1024)`. Ensure that you do not enable Wi-Fi or Bluetooth Classic simultaneously without configuring PSRAM, as the network stacks consume substantial SRAM.
+- **Solution:** The firmware dynamically allocates a 16-byte aligned tensor arena using `heap_caps_malloc(..., MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL)` with fallback sizes from 220 KB down to 100 KB. If allocation fails, ensure Wi-Fi and Bluetooth Classic are disabled to free internal SRAM blocks.
 
-### Issue 4: `ledcAttachChannel` or `ledcWrite` compilation errors
+### Issue 4: `ledcAttach` or `ledcWrite` compilation errors
 - **Cause:** ESP32 Arduino Core version difference between Core 2.x and Core 3.x.
-- **Solution:** The provided `firmware/ESP32_FoG/haptic_feedback.cpp` includes preprocessor macros (`#if ESP_ARDUINO_VERSION_MAJOR >= 3`) that automatically select the correct LEDC API for both Core 2.x (`ledcSetup`, `ledcAttachPin`) and Core 3.x (`ledcAttachChannel`, `ledcWrite`).
+- **Solution:** The provided `firmware/ESP32_FoG/haptic_feedback.cpp` includes preprocessor macros (`#if defined(ESP_ARDUINO_VERSION_MAJOR) && (ESP_ARDUINO_VERSION_MAJOR >= 3)`) that automatically select the correct LEDC API for both Core 2.x (`ledcSetup`, `ledcAttachPin`) and Core 3.x (`ledcAttach`, `ledcWrite`).
 
 ---
 
-## 3. On-Device Self-Test Verification
+## 3. On-Device Diagnostic Commands
 
-Typing `t` into the Serial Monitor at 115200 baud runs the built-in self-test against the 5 golden reference gait windows:
-```text
---- RUNNING ON-DEVICE GOLDEN VECTOR SELF-TEST (100x6 Windows) ---
-  Vector 1 [Normal (Walking)]: Expected P=0.484, Infer P=0.484 (Err: 0.0000, Tol: 0.05) Latency=3.52 ms -> PASS
-  Vector 2 [Normal (Turning)]: Expected P=0.000, Infer P=0.000 (Err: 0.0000, Tol: 0.05) Latency=3.48 ms -> PASS
-  Vector 3 [Pre-FoG (Onset Warning)]: Expected P=0.340, Infer P=0.340 (Err: 0.0000, Tol: 0.05) Latency=3.55 ms -> PASS
-  Vector 4 [Active FoG (Tremor)]: Expected P=0.113, Infer P=0.113 (Err: 0.0000, Tol: 0.05) Latency=3.51 ms -> PASS
-  Vector 5 [Active FoG (Akinetic)]: Expected P=0.531, Infer P=0.531 (Err: 0.0000, Tol: 0.05) Latency=3.50 ms -> PASS
---- SELF-TEST RESULT: 5 / 5 TEST VECTORS VERIFIED ---
-```
-If any vector fails, re-export the firmware headers using `python src/export_esp32.py`.
+The firmware provides real-time interactive serial commands at 115200 baud:
+- **`t` (Self-Test):** Executes inference across all 10 golden test vectors and verifies numerical output probability against recorded reference values within $\pm 0.05$ tolerance.
+- **`b` (Benchmark):** Executes 100 consecutive inferences on golden vector #1, printing min/mean/max latency (via high-resolution `esp_timer`), dynamic tensor arena capacity and used bytes, free/minimum heap, and FreeRTOS task stack high-water marks.
+- **`o` (Mounting Check):** Averages 2 seconds of stationary acceleration and computes the angular deviation from the training nominal coordinate frame `[-1.006, 0.132, 0.113] g`.
+- **`c` (Calibrate):** Recalibrates gyroscope stationary zero-rate offset.
+- **`s` (Status):** Prints inference counts, detected freeze events, last latency, and available free heap.

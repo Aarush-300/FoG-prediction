@@ -10,7 +10,8 @@ HapticFeedback::HapticFeedback(int motor_pin, int pwm_channel, int default_inten
       m_current_pulse(0),
       m_pulse_ms(HAPTIC_PULSE_DURATION_MS),
       m_pause_ms(HAPTIC_PULSE_PAUSE_MS),
-      m_state_timer(0)
+      m_state_timer(0),
+      m_vibration_end_time(0)
 {
 }
 
@@ -30,8 +31,8 @@ bool HapticFeedback::begin() {
 #endif
 
     setMotorPower(0);
-    Serial.printf("[HAPTIC] Initialized on GPIO %d (Channel %d, Freq %d Hz)\n",
-                  m_motor_pin, m_pwm_channel, HAPTIC_PWM_FREQ_HZ);
+    Serial.printf("[HAPTIC] Initialized on GPIO %d (Channel %d, Freq %d Hz, Default Pulses %d)\n",
+                  m_motor_pin, m_pwm_channel, HAPTIC_PWM_FREQ_HZ, HAPTIC_PULSES_PER_CUE);
     return true;
 }
 
@@ -64,6 +65,13 @@ void HapticFeedback::stop() {
     m_is_vibrating = false;
     m_current_pulse = 0;
     setMotorPower(0);
+    m_vibration_end_time = millis();
+}
+
+bool HapticFeedback::isBlankingActive() const {
+    if (m_active) return true;
+    if (m_vibration_end_time == 0) return false;
+    return (millis() - m_vibration_end_time < HAPTIC_BLANKING_MS);
 }
 
 void HapticFeedback::update() {
@@ -80,6 +88,7 @@ void HapticFeedback::update() {
 
             if (m_current_pulse >= m_target_pulses) {
                 m_active = false;
+                m_vibration_end_time = now;
             }
         }
     } else {

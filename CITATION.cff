@@ -1,12 +1,19 @@
 cff-version: 1.2.0
 message: "If you utilize this embedded wearable Parkinson's FoG system or algorithms, please cite as follows:"
-title: "ESP32 Parkinson's Disease Freezing of Gait Real-Time Prediction System"
+title: "ESP32 Parkinson's Disease Freezing of Gait Real-Time Detector and Haptic Cueing System"
 authors:
-  - family-names: "Antigravity Research Team"
-    given-names: "TinyML Embedded Health"
-version: 2.0.0
-date-released: 2026-11-11
-url: "https://github.com/aarush/parkinsons-fog-esp32"
+  - name: "Team KinetiX"
+  - family-names: "Shambhavi"
+    given-names: ""
+  - family-names: "Singh"
+    given-names: "Aryan"
+  - family-names: "Relhan"
+    given-names: "Aarush"
+  - family-names: "Dhingra"
+    given-names: "Archit"
+version: 2.1.0
+date-released: 2026-11-16
+url: "https://github.com/Aarush-300/FoG-prediction"
 keywords:
   - "Parkinson's Disease"
   - "Freezing of Gait"
