@@ -25,19 +25,21 @@ flowchart LR
 
 ### Hardware Specifications & Operational Estimates
 
-| Parameter | Specification / Method | Modeled / Estimated | Measured on Device |
+| Parameter | Specification / Method | Modeled / Estimated | Measured / Compile-Verified |
 |:---|:---|:---:|:---:|
 | **Microcontroller** | Espressif ESP32 DevKit V1 (ESP32-WROOM-32, 240 MHz) | Confirmed | Bench Verified |
 | **Inertial Sensor** | InvenSense MPU6050 6-Axis IMU via I2C Fast-Mode (400 kHz) | Confirmed | Bench Verified |
 | **IMU Low-Pass Filter** | On-chip DLPF register configured to 21 Hz cutoff (`IMU_DLPF_CFG 4`) | Confirmed | Bench Verified |
 | **Haptic Driver** | Logic-level MOSFET (IRLML2502/AO3400) on GPIO 13 with 10k gate pull-down | Confirmed | Bench Verified |
-| **Inference Latency** | TFLite Micro INT8 forward pass on 100x6 window (esp_timer) | **~3.52 ms** (estimated) | |
-| **TFLM SRAM Arena** | Dynamic 16-byte aligned allocation (`heap_caps_malloc`) | **~132 KB** (estimated) | |
-| **Average Current** | Continuous 50 Hz acquisition + 500 ms inference duty cycle | **~78 mA** (estimated) | |
-| **Battery Life** | Single-cell 3.7V 500 mAh wearable LiPo battery | **~6.4 hours** (estimated) | |
-| **Supply Voltage Dip** | 3.3V rail dip during motor start (with $100\mu\text{F}$ capacitor) | **< 150 mV** (estimated) | |
+| **Static RAM (DRAM)** | PlatformIO compilation memory allocation (`esp32dev`) | — | **24,376 bytes (23.8 KB, 7.4%)** |
+| **Flash ROM** | PlatformIO binary footprint (includes 69.3 KB INT8 weights) | — | **499,561 bytes (487.8 KB, 38.1%)** |
+| **TFLM SRAM Arena** | Dynamic 16-byte aligned ladder (`heap_caps_malloc`, 120–220 KB) | **120–140 KB used** | **> 300 KB free internal SRAM** |
+| **Inference Latency** | TFLite Micro INT8 forward pass on 100x6 window (455.6K MACs) | **3.56 ms** (modeled) | Pending Bench Measurement |
+| **Average Current** | Continuous 50 Hz acquisition + 500 ms inference duty cycle | **4.91 mA** (modeled) | Pending Bench Measurement |
+| **Battery Life** | Single-cell 3.7V 500 mAh wearable LiPo battery | **101.9 hours** (modeled) | Pending Bench Measurement |
+| **Supply Voltage Dip** | 3.3V rail dip during motor start (with $100\mu\text{F}$ capacitor) | **< 150 mV** (modeled) | Pending Bench Measurement |
 
-*Hardware measurement protocol and pending verification checklist are detailed in [docs/measurements.md](docs/measurements.md).*
+*Detailed hardware bench measurement protocol and pending verification checklist are tracked in [docs/measurements.md](docs/measurements.md).*
 
 ---
 
@@ -57,7 +59,7 @@ pip install -r requirements.txt
 ### Step 2: Run Core Verification (Data-Free)
 All core verification tests—including firmware-to-Python parity, 4-state FSM host equivalence, golden vector inference, memory allocation bounds, and model export—execute immediately on a fresh clone without needing any external data:
 ```bash
-# Run unit test suite
+# Run complete unit test suite (38 tests)
 pytest tests/ -v
 
 # Verify ESP32 firmware deployment assets and golden vector tolerances
@@ -65,7 +67,23 @@ python src/verify_esp32_deployment.py
 ```
 *(Tests requiring raw sensor recordings will automatically SKIP with an explanatory note when data files are not present).*
 
-### Step 3: (Optional) Full Dataset Reproduction & Training
+### Step 3: Verify ESP32 Firmware Compilation (PlatformIO)
+To compile the real firmware target for the ESP32:
+```bash
+# Set up dedicated PlatformIO environment
+python -m venv .venv_pio
+.venv_pio\Scripts\Activate.ps1   # (Linux/macOS: source .venv_pio/bin/activate)
+pip install platformio
+
+# Compile targeting ESP32 DevKit V1 (Arduino Core 2.x production baseline)
+pio run -e esp32dev
+
+# Compile targeting Arduino Core 3.x (modern GCC 14 toolchain)
+pio run -e esp32dev_core3
+```
+*See [docs/build_instructions.md](docs/build_instructions.md) for complete toolchain details and troubleshooting.*
+
+### Step 4: (Optional) Full Dataset Reproduction & Training
 To reproduce data preprocessing, patient split isolation, and cross-validation:
 ```bash
 # 1. Download sensor_data.csv (119.6 MB) from Zenodo Record 17838806 with SHA-256 verification
@@ -116,21 +134,22 @@ To guarantee deterministic 50 Hz sensor sampling and prevent dropped kinematic b
 
 - **Thread Safety:** All TFLM interpreter `predict()` invocations are protected by a dedicated FreeRTOS mutex to eliminate race conditions between the Core 1 inference task and interactive serial diagnostic routines.
 - **Haptic Blanking Window:** Implements `HAPTIC_BLANKING_MS 1000` holding FSM state during vibration and 1000 ms afterwards, ensuring motor vibration artifacts cannot trigger false freeze alarms.
+- **Axis Rotation & DLPF:** Compile-time matrix transform and 21 Hz hardware digital low-pass filtering are documented in [docs/axis_conventions.md](docs/axis_conventions.md).
 
 ---
 
-## 5. Known Clinical & Technical Limitations
+## 5. Audited Clinical Performance & Transparent Findings (Rule 1.4)
 
 Under pre-registered claim policy Rule 1.4, system performance is reported with full transparency:
 
 1. **Detection Rather Than Early Prediction:**
-   - **Strict Episode Sensitivity (Lead $\ge 0.5$ s):** Measured at **5.0%** [95% CI: 0.0%, 16.7%] on the test cohort.
+   - **Strict Episode Sensitivity (Lead $\ge 0.5$ s):** Measured at **5.0%** [95% CI: 0.0%, 16.7%] on the test cohort (1 of 20 transitions caught).
    - **Relaxed Episode Sensitivity (Lead $\ge 0.0$ s):** Measured at **5.0%** [95% CI: 0.0%, 16.7%].
    - **Median Detection Delay:** **+1.00 s** [95% CI: 0.00 s, 1.00 s] relative to freeze onset.
    - *Clinical Consequence:* The system functions as a **fast freeze detector with a haptic cue**, detecting freeze episodes promptly after onset, rather than providing multi-second advance warning.
 2. **False Alert Burden in Continuous Gait:**
    - On held-out test subjects, the deployed `BALANCED` preset yields **118.4 FA/hr** [95% CI: 52.6, 204.3], corresponding to approximately **one false alert every 30.4 seconds** of active walking.
-   - On development data, out-of-fold false alarm rates range from **58.6 FA/hr** (`LOW_ALARM`, 1 every 61.4 s) to **112.0 FA/hr** (`BALANCED`, 1 every 32.1 s).
+   - The conservative fallback preset (`LOW_ALARM`) achieves **93.5 FA/hr** (one every 38.5 seconds) on test data and **58.6 FA/hr** (one every 61.4 seconds) on development data.
 3. **Episode Catch Breakdown by Test Subject:**
    - **Subject 20:** Caught 3 of 6 episodes (50.0%).
    - **Subject 21:** Caught 8 of 10 episodes (80.0%).
@@ -141,25 +160,28 @@ Under pre-registered claim policy Rule 1.4, system performance is reported with 
    - Subject 22 exhibited a static resting acceleration bias of $Y = -0.253\text{ g}$ (vs cohort nominal $+0.111\text{ g}$) and a roll offset of $-65.6^\circ$.
    - On test data, v1 caught 2 of 4 episodes while v2 caught 0 of 4 episodes. No causal claim is made regarding sensor tilt and catch rate; data are reported factually.
 5. **Seed-to-Seed Stochastic Variance & Model Attribution:**
-   - Across 5 training seeds for the adopted architecture, test window PR-AUC varied between 0.5644 and 0.5912 (float mean 0.5784 ± 0.010; INT8 mean 0.499 ± 0.058).
+   - Across 5 training seeds for the adopted architecture (`b_rotation_35`), test window PR-AUC is **$0.499 \pm 0.058$** (individual seed float scores: 0.5356, 0.4179, 0.5877, 0.4800, 0.4754).
    - The deployed Seed 44 model achieves INT8 test window PR-AUC of **0.5721** (compared to v1 INT8 **0.5083**, float **0.5317**). Seed 44 was selected strictly based on development out-of-fold (OOF) cross-validation; test differences across seeds and between v1 and v2 are within statistical noise.
 6. **Optimism Gap:**
    - In nested Leave-One-Fold-Out (LOFO) validation on development data, the `BALANCED` preset showed an optimism gap of **10.14 percentage points in lenient sensitivity** (70.53% in-sample vs 60.39% nested LOFO) and **+10.45 FA/hr** (112.00 in-sample vs 122.45 nested LOFO).
+
+*A concise one-page executive summary is available in [docs/RESULTS_SUMMARY.md](docs/RESULTS_SUMMARY.md), and a comprehensive line-by-line audit of hackathon deck claims is in [docs/deck_vs_measured.md](docs/deck_vs_measured.md).*
 
 ---
 
 ## 6. Firmware Flashing & Diagnostic Commands
 
-### Prerequisites
-1. **Arduino IDE 2.x** or **VS Code with PlatformIO**.
-2. **ESP32 Board Support Package:** Version 2.0.14 or later (or Core 3.x).
-3. **Libraries:** `TensorFlowLite_ESP32` (or embedded TFLM runtime), `Wire`.
+### PlatformIO Build & Flashing (Recommended)
+```bash
+# Build firmware binary
+pio run -e esp32dev
 
-### Flashing Steps
-1. Connect ESP32 DevKit V1 via USB.
-2. Open `firmware/ESP32_FoG/ESP32_FoG.ino`.
-3. Select board **ESP32 Dev Module**, set CPU frequency to **240 MHz**.
-4. Click **Upload** and open Serial Monitor at **115200 baud**.
+# Flash to connected ESP32 board
+pio run -t upload
+
+# Open serial monitor at 115200 baud
+pio device monitor
+```
 
 ### Interactive Serial Commands
 - **`t` (Self-Test):** Runs the on-device self-test against all 10 golden reference gait windows, asserting $|\Delta p| \le \text{tolerance}$.
@@ -175,11 +197,13 @@ Under pre-registered claim policy Rule 1.4, system performance is reported with 
 The project includes an end-to-end unit test suite in `tests/`:
 
 ```bash
-# Run the complete test suite
+# Run the complete test suite (38 tests)
 pytest tests/ -v
 ```
 
 Key verification tests include:
+- `tests/test_firmware_consistency.py`: SHA-256 byte parity between `model_data.h`, `.tflite`, and manifest; scaler array matches; op resolver completeness; golden vector reproduction in Python.
+- `tests/test_preprocessing_parity.py`: Verifies C++ host-compiled preprocessing vs Python pipeline byte-for-byte across 132,000 values (0 LSB error) and 3D axis rotation parity.
 - `tests/test_fsm_equivalence.py`: Compares C++ firmware FSM (compiled via g++) against Python reference over 10,000 steps.
 - `tests/test_golden_vectors.py`: Asserts numerical agreement between host targets and INT8 interpreter outputs ($|\Delta p| \le 0.05$).
 - `tests/test_splits.py`: Guarantees strictly zero subject overlap across train, val, and test splits.
@@ -190,7 +214,11 @@ Key verification tests include:
 
 ## 8. Project Documentation Index
 
+- [Executive Results Summary](docs/RESULTS_SUMMARY.md): Official 1-page performance summary, clinical policy statement, and audited test tables.
+- [Submitted Deck vs Measured Audit](docs/deck_vs_measured.md): Line-by-line audit comparing every numerical claim in the submission deck to repo artifacts.
 - [Before-and-After Evaluation Report](reports/v2/BEFORE_AFTER.md): Comprehensive test cohort comparison between v1 submitted deck and v2 audited artifacts.
+- [Firmware Build & Flashing Guide](docs/build_instructions.md): PlatformIO setup, dual-core toolchain configuration, memory footprints, and flashing steps.
+- [IMU Axis & Sensor Conventions](docs/axis_conventions.md): Coordinate frames, register mapping, sensitivity scaling, DLPF, and rotation matrices.
 - [Pre-Registration Protocol](reports/v2/PREREGISTRATION.md): Pre-registered operating point rules, claim policy, and errata.
 - [Operating-Point Report](reports/v2/operating_point.md): Development cohort INT8 OOF Pareto frontier and dual-preset selection.
 - [Test Access Log](reports/v2/test_access_log.md): Record of test set access, execution errors, and isolation guarantees.
