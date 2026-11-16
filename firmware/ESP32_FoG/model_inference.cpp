@@ -46,8 +46,8 @@ bool ModelInferenceEngine::begin(const unsigned char* model_data, size_t model_d
     // 1. Map model schema
     const tflite::Model* model = tflite::GetModel(model_data);
     if (model->version() != TFLITE_SCHEMA_VERSION) {
-        Serial.printf("[TFLM] Error: Model schema version %d does not match supported version %d\n",
-                      model->version(), TFLITE_SCHEMA_VERSION);
+        Serial.printf("[TFLM] Error: Model schema version %u does not match supported version %u\n",
+                      (unsigned int)model->version(), (unsigned int)TFLITE_SCHEMA_VERSION);
         return false;
     }
 

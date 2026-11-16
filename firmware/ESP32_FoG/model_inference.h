@@ -5,7 +5,11 @@
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
+#if __has_include("tensorflow/lite/micro/schema/schema_generated.h")
+#include "tensorflow/lite/micro/schema/schema_generated.h"
+#else
 #include "tensorflow/lite/schema/schema_generated.h"
+#endif
 #include "model_config.h"
 
 #ifdef ESP32
