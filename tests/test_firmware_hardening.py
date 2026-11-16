@@ -163,6 +163,10 @@ def test_no_test_subjects_in_dev_scripts():
         assert len(set(val_subjs) & test_set) == 0, f"INNER_VAL_FOLDS[{f_idx}] contains test subjects: {set(val_subjs) & test_set}"
 
     # Verify load_dev_data strictly excludes TEST_SUBJECTS
+    npz_path = "data/processed/fog_dataset.npz"
+    if not os.path.exists(npz_path):
+        pytest.skip(f"{npz_path} not found (run src/download_dataset.py and src/preprocess.py to verify load_dev_data)")
+
     from train_cv import load_dev_data
     _, _, _, meta_dev = load_dev_data()
     dev_subjs = set(m['subjectID'] for m in meta_dev)
