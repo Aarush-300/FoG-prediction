@@ -319,15 +319,34 @@ if __name__ == '__main__':
         'f_labels_v1', 'f_drop_transition', 'f_clean_positives'
     ])
     parser.add_argument('--seeds', type=int, nargs='+', default=[42])
-    parser.add_argument('--max_angle_deg', type=float, default=35.0)
-    parser.add_argument('--prefog_weight', type=float, default=1.0)
+    parser.add_argument('--max_angle_deg', type=float, default=None)
+    parser.add_argument('--prefog_weight', type=float, default=None)
     parser.add_argument('--epochs', type=int, default=40)
     args = parser.parse_args()
+
+    # Automatically set hyperparameters based on pre-registered experiment ID if not explicitly overridden
+    max_angle_deg = args.max_angle_deg
+    if max_angle_deg is None:
+        if args.exp_id == 'b_rotation_50':
+            max_angle_deg = 50.0
+        elif args.exp_id == 'b_rotation_70':
+            max_angle_deg = 70.0
+        else:
+            max_angle_deg = 35.0
+
+    prefog_weight = args.prefog_weight
+    if prefog_weight is None:
+        if args.exp_id == 'e_prefog_2x':
+            prefog_weight = 2.0
+        elif args.exp_id == 'e_prefog_4x':
+            prefog_weight = 4.0
+        else:
+            prefog_weight = 1.0
 
     run_experiment(
         exp_id=args.exp_id,
         seeds=args.seeds,
-        max_angle_deg=args.max_angle_deg,
-        prefog_weight=args.prefog_weight,
+        max_angle_deg=max_angle_deg,
+        prefog_weight=prefog_weight,
         epochs=args.epochs
     )
