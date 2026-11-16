@@ -1,0 +1,325 @@
+{
+  "metadata": {
+    "pipeline": "ESP32 FoG End-to-End Evaluation Harness",
+    "fsm_config": {
+      "high": 0.49,
+      "low": 0.29,
+      "confirm": 2,
+      "cooldown_ms": 3000,
+      "alpha": 0.6
+    },
+    "test_subjects": [
+      18,
+      20,
+      21,
+      22
+    ],
+    "val_subjects": [
+      14,
+      17,
+      19
+    ]
+  },
+  "keras_float": {
+    "validation": {
+      "total_episodes": 8,
+      "strict_caught": 1,
+      "strict_sensitivity": 0.125,
+      "lenient_caught": 7,
+      "lenient_sensitivity": 0.875,
+      "total_false_alerts": 15,
+      "normal_hours": 0.10224444444444444,
+      "fa_per_hour": 146.70723755705282,
+      "lead_time_mean_s": -0.6028571428571423,
+      "lead_time_median_s": -0.7000000000000028,
+      "lead_time_pct_ge_05s": 0.14285714285714285,
+      "window_metrics": {
+        "decision_threshold": 0.44000000000000006,
+        "pr_auc": 0.8921797318008363,
+        "roc_auc": 0.9126584818708923,
+        "f1_score": 0.8228571428571428,
+        "window_sensitivity": 0.8591885441527446,
+        "window_specificity": 0.8558558558558559,
+        "confusion_matrix": {
+          "TN": 570,
+          "FP": 96,
+          "FN": 59,
+          "TP": 360
+        }
+      },
+      "per_subject": {
+        "14": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 8,
+          "normal_hours": 0.049472222222222216,
+          "fa_per_hour": 161.7069062324537,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.0
+        },
+        "17": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 0,
+          "normal_hours": 0.00465,
+          "fa_per_hour": 0.0,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.31252538765077953
+        },
+        "19": {
+          "episodes_total": 8,
+          "strict_caught": 1,
+          "strict_sensitivity": 0.125,
+          "lenient_caught": 7,
+          "lenient_sensitivity": 0.875,
+          "false_alerts": 7,
+          "normal_hours": 0.048122222222222226,
+          "fa_per_hour": 145.4629415839298,
+          "mean_lead_time_s": -0.6028571428571423,
+          "median_lead_time_s": -0.7000000000000028,
+          "window_pr_auc": 0.9361734214169117
+        }
+      }
+    },
+    "test": {
+      "total_episodes": 18,
+      "strict_caught": 0,
+      "strict_sensitivity": 0.0,
+      "lenient_caught": 12,
+      "lenient_sensitivity": 0.6666666666666666,
+      "total_false_alerts": 16,
+      "normal_hours": 0.1723888888888889,
+      "fa_per_hour": 92.81340638092169,
+      "lead_time_mean_s": -1.7666666666666668,
+      "lead_time_median_s": -1.299999999999999,
+      "lead_time_pct_ge_05s": 0.0,
+      "window_metrics": {
+        "decision_threshold": 0.44000000000000006,
+        "pr_auc": 0.531727475400677,
+        "roc_auc": 0.7473878580435958,
+        "f1_score": 0.48032564450474896,
+        "window_sensitivity": 0.48626373626373626,
+        "window_specificity": 0.8214936247723132,
+        "confusion_matrix": {
+          "TN": 902,
+          "FP": 196,
+          "FN": 187,
+          "TP": 177
+        }
+      },
+      "per_subject": {
+        "18": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 3,
+          "normal_hours": 0.07452222222222221,
+          "fa_per_hour": 40.256448486655735,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.0
+        },
+        "20": {
+          "episodes_total": 5,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 3,
+          "lenient_sensitivity": 0.6,
+          "false_alerts": 7,
+          "normal_hours": 0.048244444444444444,
+          "fa_per_hour": 145.09442653155227,
+          "mean_lead_time_s": -1.1999999999999993,
+          "median_lead_time_s": -1.2999999999999972,
+          "window_pr_auc": 0.31771034008402277
+        },
+        "21": {
+          "episodes_total": 9,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 7,
+          "lenient_sensitivity": 0.7777777777777778,
+          "false_alerts": 4,
+          "normal_hours": 0.03062222222222222,
+          "fa_per_hour": 130.62409288824384,
+          "mean_lead_time_s": -1.3428571428571432,
+          "median_lead_time_s": -1.3000000000000007,
+          "window_pr_auc": 0.7355901392241229
+        },
+        "22": {
+          "episodes_total": 4,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 2,
+          "lenient_sensitivity": 0.5,
+          "false_alerts": 2,
+          "normal_hours": 0.019000000000000003,
+          "fa_per_hour": 105.26315789473682,
+          "mean_lead_time_s": -4.100000000000001,
+          "median_lead_time_s": -4.100000000000001,
+          "window_pr_auc": 0.4771621364737973
+        }
+      }
+    }
+  },
+  "tflite_int8": {
+    "validation": {
+      "total_episodes": 8,
+      "strict_caught": 1,
+      "strict_sensitivity": 0.125,
+      "lenient_caught": 7,
+      "lenient_sensitivity": 0.875,
+      "total_false_alerts": 10,
+      "normal_hours": 0.10224444444444444,
+      "fa_per_hour": 97.8048250380352,
+      "lead_time_mean_s": -0.388571428571428,
+      "lead_time_median_s": -0.7000000000000028,
+      "lead_time_pct_ge_05s": 0.14285714285714285,
+      "window_metrics": {
+        "decision_threshold": 0.6300000000000001,
+        "pr_auc": 0.8438397050975136,
+        "roc_auc": 0.8782798311437929,
+        "f1_score": 0.7804323094425484,
+        "window_sensitivity": 0.8186157517899761,
+        "window_specificity": 0.8243243243243243,
+        "confusion_matrix": {
+          "TN": 549,
+          "FP": 117,
+          "FN": 76,
+          "TP": 343
+        }
+      },
+      "per_subject": {
+        "14": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 6,
+          "normal_hours": 0.049472222222222216,
+          "fa_per_hour": 121.28017967434027,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.0
+        },
+        "17": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 0,
+          "normal_hours": 0.00465,
+          "fa_per_hour": 0.0,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.3016293726864444
+        },
+        "19": {
+          "episodes_total": 8,
+          "strict_caught": 1,
+          "strict_sensitivity": 0.125,
+          "lenient_caught": 7,
+          "lenient_sensitivity": 0.875,
+          "false_alerts": 4,
+          "normal_hours": 0.048122222222222226,
+          "fa_per_hour": 83.12168090510274,
+          "mean_lead_time_s": -0.388571428571428,
+          "median_lead_time_s": -0.7000000000000028,
+          "window_pr_auc": 0.8884872055298735
+        }
+      }
+    },
+    "test": {
+      "total_episodes": 18,
+      "strict_caught": 0,
+      "strict_sensitivity": 0.0,
+      "lenient_caught": 12,
+      "lenient_sensitivity": 0.6666666666666666,
+      "total_false_alerts": 21,
+      "normal_hours": 0.1723888888888889,
+      "fa_per_hour": 121.81759587495971,
+      "lead_time_mean_s": -1.8083333333333336,
+      "lead_time_median_s": -1.299999999999999,
+      "lead_time_pct_ge_05s": 0.0,
+      "window_metrics": {
+        "decision_threshold": 0.6300000000000001,
+        "pr_auc": 0.5082503699564448,
+        "roc_auc": 0.7329522708621069,
+        "f1_score": 0.4322678843226788,
+        "window_sensitivity": 0.3901098901098901,
+        "window_specificity": 0.8624772313296903,
+        "confusion_matrix": {
+          "TN": 947,
+          "FP": 151,
+          "FN": 222,
+          "TP": 142
+        }
+      },
+      "per_subject": {
+        "18": {
+          "episodes_total": 0,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 0,
+          "lenient_sensitivity": 0.0,
+          "false_alerts": 7,
+          "normal_hours": 0.07452222222222221,
+          "fa_per_hour": 93.93171313553006,
+          "mean_lead_time_s": 0.0,
+          "median_lead_time_s": 0.0,
+          "window_pr_auc": 0.0
+        },
+        "20": {
+          "episodes_total": 5,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 3,
+          "lenient_sensitivity": 0.6,
+          "false_alerts": 7,
+          "normal_hours": 0.048244444444444444,
+          "fa_per_hour": 145.09442653155227,
+          "mean_lead_time_s": -1.1999999999999993,
+          "median_lead_time_s": -1.2999999999999972,
+          "window_pr_auc": 0.28963332329551744
+        },
+        "21": {
+          "episodes_total": 9,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 7,
+          "lenient_sensitivity": 0.7777777777777778,
+          "false_alerts": 4,
+          "normal_hours": 0.03062222222222222,
+          "fa_per_hour": 130.62409288824384,
+          "mean_lead_time_s": -1.4142857142857146,
+          "median_lead_time_s": -1.3000000000000007,
+          "window_pr_auc": 0.7242937978095315
+        },
+        "22": {
+          "episodes_total": 4,
+          "strict_caught": 0,
+          "strict_sensitivity": 0.0,
+          "lenient_caught": 2,
+          "lenient_sensitivity": 0.5,
+          "false_alerts": 3,
+          "normal_hours": 0.019000000000000003,
+          "fa_per_hour": 157.89473684210523,
+          "mean_lead_time_s": -4.100000000000001,
+          "median_lead_time_s": -4.100000000000001,
+          "window_pr_auc": 0.4658000986037553
+        }
+      }
+    }
+  }
+}
