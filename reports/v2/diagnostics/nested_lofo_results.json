@@ -1,0 +1,130 @@
+{
+  "LOW_ALARM": {
+    "in_sample_lenient": 44.93,
+    "lofo_lenient": 44.93,
+    "gap_lenient": 0.0,
+    "in_sample_fa": 58.61,
+    "lofo_fa": 58.98,
+    "gap_fa": 0.37,
+    "chosen_configs_per_fold": [
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 5000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.15,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      }
+    ]
+  },
+  "BALANCED": {
+    "in_sample_lenient": 70.53,
+    "lofo_lenient": 60.39,
+    "gap_lenient": 10.14,
+    "in_sample_fa": 112.0,
+    "lofo_fa": 122.45,
+    "gap_fa": 10.45,
+    "chosen_configs_per_fold": [
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.5,
+        "low": 0.3,
+        "cooldown_ms": 5000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.7,
+        "high": 0.55,
+        "low": 0.35,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.5,
+        "low": 0.35,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.55,
+        "low": 0.35,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.9,
+        "high": 0.55,
+        "low": 0.29,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      },
+      {
+        "confirm": 2,
+        "alpha": 0.6,
+        "high": 0.7,
+        "low": 0.29,
+        "cooldown_ms": 6000,
+        "rearm_policy": "timeout_and_low",
+        "recue_interval_s": 0
+      }
+    ]
+  }
+}

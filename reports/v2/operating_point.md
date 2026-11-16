@@ -23,8 +23,8 @@
 ## 2. Pre-Registered Operating Presets (Rule 1.3)
 
 | Parameter | Preset: `LOW_ALARM` | Preset: `BALANCED` |
-|:---|:---:|:---:|
-| **Target Objective** | Max Lenient Sens subject to FA/hr $\le 30.0$ | Lowest FA/hr subject to Lenient Sens $\ge 70.0\%$ |
+|:---|:---|:---|
+| **Target Objective** | pre-registered rule infeasible: no config met FA <= 30; reported fallback = lowest-FA config meeting any sensitivity | Lowest FA/hr subject to Lenient Sens $\ge 70.0\%$ |
 | **Consecutive Confirmations ($N_{confirm}$)** | `2` | `2` |
 | **EMA Smoothing ($\alpha$)** | `0.60` | `0.60` |
 | **High Alert Threshold ($T_{high}$)** | `0.70` | `0.55` |
@@ -32,11 +32,13 @@
 | **Refractory Cooldown ($T_{cooldown}$)** | `6000 ms` | `6000 ms` |
 | **Re-Arm Policy** | `timeout_and_low` | `timeout_and_low` |
 | **Re-Cue Interval** | `0 s` | `0 s` |
-| **Mean LOFO Lenient Sensitivity** | **44.9%** | **70.5%** |
-| **Mean LOFO Strict Sensitivity** | 2.9% | 7.2% |
-| **Mean LOFO Relaxed Sensitivity** | 4.3% | 9.7% |
-| **Mean LOFO False Alerts / Hour** | **58.6 FA/hr** | **112.0 FA/hr** |
-| **One False Alert Every** | **61.4 seconds** | **32.1 seconds** |
+| **Mean In-Sample Lenient Sensitivity** | **44.9%** | **70.5%** |
+| **Mean Nested LOFO Lenient Sensitivity** | **44.9%** | **60.4%** |
+| **Mean In-Sample Strict Sensitivity** | 2.9% | 7.2% |
+| **Mean In-Sample Relaxed Sensitivity** | 4.3% | 9.7% |
+| **Mean In-Sample False Alerts / Hour** | **58.6 FA/hr** | **112.0 FA/hr** |
+| **Mean Nested LOFO False Alerts / Hour** | **59.0 FA/hr** | **122.5 FA/hr** |
+| **One False Alert Every (In-Sample)** | **61.4 seconds** | **32.1 seconds** |
 | **Median Detection Delay** | 2.00 s | 1.45 s |
 | **IQR Detection Delay [Q25, Q75]** | [1.40s, 3.30s] | [0.90s, 2.50s] |
 | **% Alerted Within 1.0 s of Onset** | 18.3% | 31.5% |
@@ -70,11 +72,15 @@
 
 ---
 
-## 5. Optimism Gap Analysis (In-Sample vs LOFO)
+## 5. Optimism Gap Analysis (In-Sample vs True Nested LOFO)
 
-| Preset | Metric | In-Sample Value | LOFO Value | Optimism Gap (In-Sample minus LOFO) |
+In nested LOFO validation, the FSM hyperparameter configuration is re-selected on 5 development folds and strictly evaluated on the held-out 6th fold across all 3 development seeds (42, 43, 44), avoiding data leakage in operating point selection.
+
+| Preset | Metric | In-Sample Value | Nested LOFO Value | Optimism Gap (In-Sample vs Nested LOFO) |
 |:---|:---|:---:|:---:|:---:|
-| `LOW_ALARM` | Lenient Sensitivity (%) | 44.93% | 44.93% | +0.00 pts |
-| `LOW_ALARM` | False Alerts / hour | 58.6 | 58.6 | -0.0 FA/hr |
-| `BALANCED` | Lenient Sensitivity (%) | 70.53% | 70.53% | -0.00 pts |
-| `BALANCED` | False Alerts / hour | 112.0 | 112.0 | -0.0 FA/hr |
+| `LOW_ALARM` | Lenient Sensitivity (%) | 44.93% | 44.93% | 0.00 pts |
+| `LOW_ALARM` | False Alerts / hour | 58.61 FA/hr | 58.98 FA/hr | +0.37 FA/hr |
+| `BALANCED` | Lenient Sensitivity (%) | 70.53% | 60.39% | +10.14 pts |
+| `BALANCED` | False Alerts / hour | 112.00 FA/hr | 122.45 FA/hr | +10.45 FA/hr |
+
+*Note: For `BALANCED`, re-selecting on 5 folds reveals a true optimism gap of 10.14 percentage points in lenient sensitivity (in-sample 70.53% vs out-of-sample 60.39%) and +10.45 FA/hr in false alert rate (in-sample 112.00 vs out-of-sample 122.45 FA/hr).*

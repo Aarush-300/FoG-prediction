@@ -1,92 +1,148 @@
-# Before vs After: Phase 2 Final Test Set Verification Report (Step 6)
+# Comprehensive Before-and-After Evaluation Report: v1 vs v2
 
 **Evaluation Date:** 2026-11-16  
-**Test Cohort:** Held-out subjects `[18, 20, 21, 22]` (18 clinical freeze episodes, 620.5 s normal gait).  
-**Adopted Architecture:** `baseline_rotation_35` | **Deployed Seed:** `44`  
-**Test Lock Enforcement:** `reports/v2/test_eval.lock` verified and created. Artifact hashes matched `frozen_manifest.json`.
-
-> **Note on Audited vs Submitted Metrics:** v1 submitted numbers cannot change because they reflect the hackathon deck; audited numbers show what that exact binary does under the corrected harness.
+**Audited By:** Test Set Evaluation Suite (`src/final_test_eval.py` / `src/render_docs.py`)  
+**Adopted Recipe:** `b_rotation_35` (Seed 44)  
+**Test Cohort:** Subjects 18, 20, 21, 22 (Held-out, strictly isolated from model training and selection)  
 
 ---
 
-## 1. Before vs After Master Comparison Table
+## 1. Classification Rule for Comparison Status
 
-| Metric | v1 Submitted (Hackathon Deck) | v1 Audited (Corrected Harness) | v2 Deployed (`LOW_ALARM` Preset) | v2 Deployed (`BALANCED` Preset) | Status (v2 BALANCED vs v1 Audited) |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| **Episode Lenient Sensitivity** | 83.3% (15/18) | 65.0% [50.0%, 80.0%] | 45.0% [0.0%, 70.0%] | **55.0%** [0.0%, 80.0%] | **within noise** |
-| **Episode Strict Sensitivity** | "0.5-3 s ahead" | 0.0% [0.0%, 0.0%] | 5.0% [0.0%, 16.7%] | **5.0%** [0.0%, 16.7%] | **within noise** |
-| **Episode Relaxed Sensitivity** | N/A | 0.0% [0.0%, 0.0%] | 5.0% [0.0%, 16.7%] | **5.0%** [0.0%, 16.7%] | **within noise** |
-| **Alert False Alarm Rate** | 11.6 FA/hr* | 124.6 [103.3, 157.2] | 93.5 [8.8, 213.4] | **118.4** [52.6, 204.3] | **within noise** |
-| **True FA/hr (excl. boundary)** | N/A | 118.4 | 81.0 | **112.2** | - |
-| **Boundary Alerts** | N/A | 1 | 2 | **1** | - |
-| **Median Detection Delay** | "-0.5s" | 1.30 s | 1.00 s | **1.00 s** | **better** |
-| **% Alerted Within 1.0 s** | N/A | 30.0% | 30.0% | **35.0%** | - |
-| **Window PR-AUC (INT8)** | 0.648 | 0.5721 | 0.5721 | **0.5721** | **within noise** |
-| **Window ROC-AUC (INT8)** | 0.908 | 0.7727 | 0.7727 | **0.7727** | **within noise** |
-
-*\*Note: v1 submitted FA/hr of 11.6 in the deck was computed using the uncorrected normal-time denominator and omitted boundary false positives.*
+Under pre-registered protocol rule 1.4 and audit rule 0.10, the **Status** column between v1 and v2 is evaluated strictly via 95% bootstrap confidence interval (CI) overlap:
+- **`better`**: The v2 95% CI is strictly superior to the v1 95% CI without overlap ($v2_{\text{lower}} > v1_{\text{upper}}$ for sensitivity/PR-AUC, or $v2_{\text{upper}} < v1_{\text{lower}}$ for false-alarm rate).
+- **`worse`**: The v2 95% CI is strictly inferior to the v1 95% CI without overlap ($v2_{\text{upper}} < v1_{\text{lower}}$ for sensitivity/PR-AUC, or $v2_{\text{lower}} > v1_{\text{upper}}$ for false-alarm rate).
+- **`within noise`**: The 95% bootstrap confidence intervals of v1 and v2 overlap.
 
 ---
 
-## 2. Multi-Seed Generalization (Window Metrics across Seeds 42, 43, 44, 45, 46)
+## 2. Core System Comparison Table
 
-| Seed Index | Window PR-AUC | Window ROC-AUC | Sensitivity @ 0.49 (%) | Specificity @ 0.49 (%) |
-|:---:|:---:|:---:|:---:|:---:|
-| Seed 42 | 0.5356 | 0.7522 | 47.5% | 83.0% |
-| Seed 43 | 0.4179 | 0.6723 | 9.1% | 98.5% |
-| Seed 44 | 0.5877 | 0.7772 | 63.5% | 75.0% |
-| Seed 45 | 0.4800 | 0.7125 | 22.8% | 93.7% |
-| Seed 46 | 0.4754 | 0.7113 | 19.2% | 95.5% |
-| **Mean $\pm$ SD** | **0.4993 $\pm$ 0.0578** | **0.7251 $\pm$ 0.0363** | **32.4% $\pm$ 20.0%** | - |
-
----
-
-## 3. Pre-Registered Ablation Studies
-
-### Ablation A: Consecutive Confirmations ($N_{confirm} = 1$ vs $N_{confirm} = 2$)
-Evaluated on the deployed v2 INT8 model with BALANCED configuration parameters ($\alpha=0.60, T_{high}=0.55, T_{low}=0.35, T_{cd}=6000$ ms, timeout_and_low):
-- **$N_{confirm} = 1$:** Lenient Sens = **60.0%** [0.0%, 90.0%] | FA/hr = **149.6** [91.7, 235.7] | Median Delay = 0.50 s
-- **$N_{confirm} = 2$:** Lenient Sens = **55.0%** [0.0%, 80.0%] | FA/hr = **118.4** [52.6, 204.3] | Median Delay = 1.00 s
-- **Conclusion:** Requiring 2 consecutive confirmations filters out transient spikes, yielding a substantial reduction in false alarms at comparable episode sensitivity.
-
-### Ablation B: Raw Window Thresholding at 0.49 (No FSM, Consecutive Windows Merged)
-- **Raw Positive Events / Hour:** **361.4 events/hr** [258.6, 457.3]
-- **Episode Lenient Sensitivity:** **85.0%** [50.0%, 100.0%]
-- **Episode Strict Sensitivity:** 20.0% [0.0%, 33.3%]
-- **Median Detection Delay:** 0.00 s
-- **Conclusion:** Raw window thresholding without temporal smoothing generates over 361 raw positive events per hour, demonstrating the absolute clinical necessity of the 4-state alarm FSM.
-
-### Ablation C: Firmware FSM Benchmark ($N_{confirm}=2, \alpha=0.85, T_{high}=0.49, T_{low}=0.29, T_{cd}=4000$ ms, timeout)
-- **(C1) v1 Model + Firmware FSM:** Lenient Sens = **75.0%** [50.0%, 90.0%] | FA/hr = **236.8** [122.7, 376.9]
-- **(C2) v2 Model + Firmware FSM:** Lenient Sens = **75.0%** [50.0%, 90.0%] | FA/hr = **299.1** [148.5, 593.5]
-- **Conclusion:** Pairing the retrained v2 model with the firmware FSM improves detection sensitivity while controlling alarm rates.
+| Metric / Property | v1 Submitted (Deck Claims) | v1 Audited (INT8 Ground Truth) | v2 INT8 Deployed (`BALANCED`) | Status (CI Overlap Rule) |
+|:---|:---|:---|:---|:---:|
+| **Model Binary Path** | `models/esp32/best_model_int8.tflite` | `models/esp32/best_model_int8.tflite` | `export/v2/b_rotation_35_seed44_int8.tflite` | — |
+| **Model SHA-256** | `1ca087a3da991cd0...` | `1ca087a3da991cd0...` | `a9d0ace3812bd1f7...` | — |
+| **Architecture / Params** | 43,393 params (Deck Slide 10) | 43,393 params | 43,393 params | identical |
+| **Flash Size (Bytes)** | 69,264 bytes (Deck Slide 12) | 69,264 bytes | 69,264 bytes | identical |
+| **Window PR-AUC** | 0.532 (Deck Slide 11) | 0.5083 | 0.5721 | within noise |
+| **Window ROC-AUC** | not reported in deck | 0.7330 | 0.7727 | within noise |
+| **Window Specificity @ 0.49** | 82.1% (Deck Slide 11) | 79.96% (75.2% @ 0.44) | 73.86% | within noise |
+| **Window F1 Score** | 0.480 (Deck Slide 11) | 0.4571 | 0.4783 | within noise |
+| **INT8 PR-AUC Retention** | 95.58% (Deck Slide 12) | 95.58% | 97.34% | within noise |
+| **Canonical Test Episodes Caught** | 18/18 episodes (Deck Slide 11) | 12/18 (66.7%) | 10/18 (55.6%) | within noise |
+| **Raw Annotated Transitions Caught** | not reported in deck | 13/20 (65.0%) [50.0%, 80.0%] | 11/20 (55.0%) [0.0%, 80.0%] | **within noise** |
+| **Strict Sensitivity (Lead $\ge 0.5$ s)** | not reported in deck | 0/20 (0.0%) [0.0%, 0.0%] | 1/20 (5.0%) [0.0%, 16.7%] | **within noise** |
+| **Relaxed Sensitivity (Lead $\ge 0.0$ s)** | not reported in deck | 0/20 (0.0%) [0.0%, 0.0%] | 1/20 (5.0%) [0.0%, 16.7%] | within noise |
+| **Median Detection Delay** | -0.47 s (warning time, Slide 11) | +1.30 s [1.15s, 4.10s] | +1.00 s [0.00s, 1.00s] | **better** |
+| **% Alerted Within 1.0 s of Onset** | not reported in deck | 30.0% | 35.0% | within noise |
+| **Total False Alerts / Hour** | not reported in deck | 124.6 FA/hr [103.3, 157.2] | 118.4 FA/hr [52.6, 204.3] | **within noise** |
+| **True False Alerts / Hour** | not reported in deck | 118.4 FA/hr | 112.2 FA/hr | within noise |
+| **One False Alert Every N Seconds** | not reported in deck | 28.9 seconds | 30.4 seconds | within noise |
 
 ---
 
-## 4. Per-Subject Test Breakdown (Subjects 18, 20, 21, 22)
+## 3. Detailed Source Attribution for v1 Submitted Column (Rule 0.1)
 
-| Subject ID | Total Episodes | Normal Hours | v1 Caught | v2 `LOW_ALARM` Caught | v2 `BALANCED` Caught | v2 `BALANCED` FA/hr |
-|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Subject 18** | 0 | 0.070 h | 0/0 (0.0%) | 0/0 (0.0%) | **0/0 (0.0%)** | 42.8 FA/hr |
-| **Subject 20** | 6 | 0.046 h | 3/6 (50.0%) | 2/6 (33.3%) | **3/6 (50.0%)** | 218.6 FA/hr |
-| **Subject 21** | 10 | 0.027 h | 8/10 (80.0%) | 7/10 (70.0%) | **8/10 (80.0%)** | 112.1 FA/hr |
-| **Subject 22** | 4 | 0.018 h | 2/4 (50.0%) | 0/4 (0.0%) | **0/4 (0.0%)** | 167.7 FA/hr |
-
-### Clinical Investigation: Subject 22
-Subject 22 presents severe IMU pitch tilt (~70° sensor orientation deviation).
-- **v1 Baseline Performance:** Caught 2/4 episodes (50.0%) with a severe detection delay of over 4 seconds.
-- **v2 Retrained Pipeline:** Caught 0/4 episodes (0.0%). Because `b_rotation_70` was rejected under Rule 1.1 due to cross-seed instability and `b_rotation_35` (±35° augmentation) was retained, Subject 22's extreme ~70° tilt remains outside the training distribution, confirming that severe sensor misalignments require larger augmentation bounds or deliberate mechanical calibration.
+Every metric in the "v1 Submitted" column is rigorously traced to its originating document:
+- **Window PR-AUC (0.532):** Hackathon Submission Deck, Slide 11 ("Model Performance").
+- **Window F1 Score (0.480):** Hackathon Submission Deck, Slide 11 ("Model Performance").
+- **Window Specificity (82.1%):** Hackathon Submission Deck, Slide 11 ("Model Performance").
+- **Episodes Caught (18/18, 100%):** Hackathon Submission Deck, Slide 11 ("Clinical Validation"). *Note: The submission deck claimed 100% sensitivity by counting non-causal alerts across the full trial.*
+- **Mean Warning Time (0.47 s):** Hackathon Submission Deck, Slide 11 ("Clinical Validation"). *Note: Reported as lead time prior to onset.*
+- **INT8 PR-AUC Retention (95.58%):** Hackathon Submission Deck, Slide 12 ("Edge Optimization & Quantization").
+- **Parameter Count (43,393):** Hackathon Submission Deck, Slide 10 ("TinyML Architecture").
+- **All other metrics:** Labeled as `"not reported in deck"` in compliance with audit rule 0.1. Unverified or mis-sourced numbers (e.g. 83.3%, 0.648, 0.908, 11.6 FA/h, -0.5 s) have been purged.
 
 ---
 
-## 5. Rule 1.4 Claim Policy Evaluation
+## 4. Test Episode Count Reconciliation: 18 Canonical vs 20 Raw Transitions (Rule 0.2)
 
-- **Test STRICT Sensitivity:** **5.0%** (Requirement: $\ge 50.0\%$)
-- **Bootstrap 95% CI Lower Bound:** **0.0%** (Requirement: $\ge 25.0\%$)
-- **Formal Status:** **DISALLOWED**
-- **Mandatory System Description:**
-  > **"fast freeze detector with a haptic cue"**
+### Complete Test Episode Inventory
 
-**Explicit Decision on Clinical Claim:**  
-Is the claim *"predicts freezes 0.5–3 s ahead"* allowed under Rule 1.4?  
-**NO.** The strict prediction sensitivity on held-out test subjects is 5.0% (with a 95% CI lower bound of 0.0%), failing the pre-registered requirement of $\ge 50.0\%$ with lower bound $\ge 25.0\%$. The system must be described honestly in all documentation, codebases, and presentations as a **"fast freeze detector with a haptic cue"**.
+| Episode # | Subject | Task | Raw Annotation [Onset, Offset] | Raw Duration | Phase 1 Canonical [Onset, Offset] | Difference / Reconciliation Cause |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| 1 | Sub 20 | Task 3 | [46.00s, 48.30s] | 2.30s | [46.00s, 48.30s] | Identical in both |
+| 2 | Sub 20 | Task 6 | [9.20s, 11.50s] | 2.30s | [9.20s, 20.60s] | Merged in P1: pre-FoG/transition windows span the 4.0s gap to Episode 3 |
+| 3 | Sub 20 | Task 6 | [15.50s, 20.60s] | 5.10s | (merged with Ep 2) | Merged into [9.20s, 20.60s] (11.40s duration) |
+| 4 | Sub 20 | Task 6 | [31.60s, 32.90s] | 1.30s | [31.60s, 32.90s] | Identical in both |
+| 5 | Sub 20 | Task 6 | [66.70s, 71.60s] | 4.90s | [66.70s, 71.60s] | Identical in both |
+| 6 | Sub 20 | Task 6 | [86.98s, 88.28s] | 1.30s | [86.98s, 88.28s] | Identical in both |
+| 7 | Sub 21 | Task 1 | [15.70s, 19.70s] | 4.00s | [15.70s, 19.70s] | Identical in both |
+| 8 | Sub 21 | Task 1 | [27.10s, 28.80s] | 1.70s | [27.10s, 28.80s] | Identical in both |
+| 9 | Sub 21 | Task 3 | [7.50s, 9.30s] | 1.80s | [7.50s, 9.30s] | Identical in both |
+| 10 | Sub 21 | Task 3 | [16.60s, 20.40s] | 3.80s | [16.60s, 20.40s] | Identical in both |
+| 11 | Sub 21 | Task 4 | [8.20s, 10.30s] | 2.10s | [8.20s, 10.30s] | Identical in both |
+| 12 | Sub 21 | Task 4 | [17.90s, 20.30s] | 2.40s | [17.90s, 20.30s] | Identical in both |
+| 13 | Sub 21 | Task 6 | [5.20s, 6.10s] | 0.90s | (omitted in P1) | Filtered in P1: duration < 1.0s; never covers >50% of any 2.0s window |
+| 14 | Sub 21 | Task 6 | [12.20s, 16.10s] | 3.90s | [12.20s, 16.10s] | Identical in both |
+| 15 | Sub 21 | Task 6 | [23.50s, 29.90s] | 6.40s | [23.50s, 29.90s] | Identical in both |
+| 16 | Sub 21 | Task 7 | [9.30s, 29.20s] | 19.90s | [9.30s, 29.20s] | Identical in both |
+| 17 | Sub 22 | Task 3 | [20.00s, 26.90s] | 6.90s | [20.00s, 26.90s] | Identical in both |
+| 18 | Sub 22 | Task 3 | [44.60s, 46.86s] | 2.26s | [44.60s, 46.86s] | Identical in both |
+| 19 | Sub 22 | Task 4 | [22.40s, 32.10s] | 9.70s | [22.40s, 32.10s] | Identical in both |
+| 20 | Sub 22 | Task 4 | [52.40s, 57.30s] | 4.90s | [52.40s, 57.30s] | Identical in both |
+
+**Reconciliation Summary:**
+- Subject 20: 5 canonical episodes vs 6 raw transitions (1 merged pair).
+- Subject 21: 9 canonical episodes vs 10 raw transitions (1 short 0.9s episode omitted by window majority).
+- Subject 22: 4 canonical episodes vs 4 raw transitions (identical).
+- Subject 18: 0 episodes in both (control).
+- **Canonical 18-episode standard:** v1 caught 12/18 (66.7%), v2 caught 10/18 (55.6%).
+- **Raw 20-transition standard:** v1 caught 13/20 (65.0%), v2 caught 11/20 (55.0%).
+
+---
+
+## 5. Explicit Window Metrics Verification (Rule 0.3)
+
+| Model Artifact | File Path | SHA-256 Checksum | Test Window PR-AUC | Test Window ROC-AUC | Test Window Sens @ 0.49 | Test Window Spec @ 0.49 |
+|:---|:---|:---|:---:|:---:|:---:|:---:|
+| **v1 INT8** | `models/esp32/best_model_int8.tflite` | `1ca087a3da991cd085f9036e1792a432184334bc5e59f0e9dd4c1d2378b1bdea` | **0.5083** | **0.7330** | 60.44% | 79.96% |
+| **v2 INT8** | `export/v2/b_rotation_35_seed44_int8.tflite` | `a9d0ace3812bd1f7d4fbbd3e5c42383268aaaaff401c4de620276d955cad1ed3` | **0.5721** | **0.7727** | 63.19% | 73.86% |
+| **v2 Float** | `models/v2/b_rotation_35_seed44.h5` | Verified in Manifest | 0.5877 | 0.7772 | 63.46% | 74.95% |
+
+---
+
+## 6. FSM Ablation Analysis (Rules 0.6 & Pre-Registration)
+
+| Ablation ID | Model | FSM Parameters ($N_{confirm}, \alpha, T_{high}, T_{low}, T_{cd}$, Re-arm) | Lenient Sens (%) | Strict Sens (%) | FA / Hour | Status |
+|:---|:---:|:---|:---:|:---:|:---:|:---:|
+| **v1 Deployed Firmware** | v1 INT8 | $N=2, \alpha=0.60, T_h=0.49, T_l=0.29, T_{cd}=3000\text{ms}$, `timeout_and_low` | 65.0% | 0.0% | 124.6 | Baseline |
+| **v1 Timeout-Only Re-arm** | v1 INT8 | $N=2, \alpha=0.85, T_h=0.49, T_l=0.29, T_{cd}=4000\text{ms}$, `timeout` | 75.0% | 0.0% | 236.8 | Higher FA (+90%) |
+| **v2 Model + v1 FSM** | v2 INT8 | $N=2, \alpha=0.85, T_h=0.49, T_l=0.29, T_{cd}=4000\text{ms}$, `timeout` | 75.0% | 0.0% | 299.1 | Higher FA |
+| **Ablation A: Confirm=1** | v2 INT8 | $N=1, \alpha=0.60, T_h=0.55, T_l=0.35, T_{cd}=6000\text{ms}$, `timeout_and_low` | 60.0% | 5.0% | 149.6 | High FA (+26%) |
+| **Ablation B: Raw Window** | v2 INT8 | Raw thresholding at $p \ge 0.49$ (no FSM, consecutive positive merged) | 80.0% | 15.0% | 405.1 | Prohibitive FA |
+| **v2 Preset: BALANCED** | v2 INT8 | $N=2, \alpha=0.60, T_h=0.55, T_l=0.35, T_{cd}=6000\text{ms}$, `timeout_and_low` | 55.0% | 5.0% | 118.4 | Deployed preset |
+| **v2 Preset: LOW_ALARM** | v2 INT8 | $N=2, \alpha=0.60, T_h=0.70, T_l=0.15, T_{cd}=6000\text{ms}$, `timeout_and_low` | 35.0% | 0.0% | 74.8 | Fallback preset |
+
+---
+
+## 7. Subject 22 Kinematic Diagnosis and Test Results (Rule 0.7)
+
+### Development Data Diagnosis
+Offline analysis of resting calibration data across subjects revealed that Subject 22 exhibited a significant mounting/postural orientation offset:
+- **Roll Offset:** Approximately -65.6 degrees.
+- **Static Acceleration Biases:**
+  - $Y$-axis gravity component: -0.253 g (nominal cohort mean: +0.111 g).
+  - $X$-axis gravity component: -0.895 g (nominal cohort mean: -1.006 g).
+  - $Z$-axis gravity component: +0.274 g (nominal cohort mean: +0.113 g).
+
+### Test Episode Catch Performance
+On the 4 test episodes of Subject 22 (Task 3 [20.0–26.9s], Task 3 [44.6–46.9s], Task 4 [22.4–32.1s], Task 4 [52.4–57.3s]):
+- **v1 INT8 + Deployed Firmware FSM:**
+  - Lenient Catch Count: 2 of 4 episodes caught (50.0%).
+  - Strict Catch Count: 0 of 4 episodes caught (0.0%).
+  - False Alerts: 2 alerts over 0.0179 normal hours (111.8 FA/hr).
+- **v2 INT8 + BALANCED Preset:**
+  - Lenient Catch Count: 0 of 4 episodes caught (0.0%).
+  - Strict Catch Count: 0 of 4 episodes caught (0.0%).
+  - False Alerts: 2 alerts over 0.0179 normal hours (111.8 FA/hr).
+
+*Reporting Note:* In compliance with rule 0.7, no causal claim is asserted between sensor pitch tilt and catch performance. Results are presented factually based on recorded kinematics and test outputs.
+
+---
+
+## 8. Clinical Takeaways & Honest Assessment
+
+1. **Equivalence Beyond Noise:** The deployed v2 INT8 model (`BALANCED` preset) achieves 55.0% lenient sensitivity and 118.4 FA/hr on the test cohort, compared to v1's 65.0% lenient sensitivity and 124.6 FA/hr. All 95% bootstrap confidence intervals overlap substantially. **v2 is not proven to be superior to v1 beyond statistical noise.**
+2. **False Alarm Burden:** In lab test data, false alarms occur at approximately 112–125 FA/hr (roughly one false alert every 28–32 seconds of active walking). In home use, clinical utility will require patient-specific calibration or conservative operating thresholds (`LOW_ALARM`).
+3. **Mandatory System Description (Rule 1.4):** Strict sensitivity on test data is 5.0% [0.0%, 16.7%]. Under pre-registration rule 1.4, the claim *"predicts freezes 0.5–3 s ahead"* is **disallowed**. The system is strictly described as a **"fast freeze detector with a haptic cue"**.

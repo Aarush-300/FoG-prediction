@@ -227,3 +227,22 @@ Nothing is tuned on any test result; if v2 is worse than v1 on any metric, it is
 
 ### 8.6 Knowledge Note on Subject 22
 The rotation candidates {35, 50, 70} were chosen knowing that Subject 22 (a test subject) had a 65.6 deg tilt; the selection itself uses development subjects only.
+
+
+---
+
+## 9. Errata & Protocol Amendments (Integrity Audit)
+
+### 9.1 Operating Point Fallback for `LOW_ALARM`
+**Date:** 2026-11-16  
+**Deviation Note:** In the 15,900 INT8 OOF FSM grid search over development data across seeds {42, 43, 44}, zero hyperparameter configurations achieved mean FA/hr $\le 30.0$ while achieving any sensitivity (the Pareto frontier confirmed 0.0% sensitivity for budgets $\le 15$ and $\le 30$ FA/hr). In accordance with the pre-registered contingency, the `LOW_ALARM` preset adopted the lowest achievable FA/hr configuration in the grid meeting non-zero sensitivity: achieved 58.6 FA/hr (mean LOFO lenient sensitivity 44.9%, $c=2, \alpha=0.60, h=0.70, l=0.15, cd=6000\text{ms}, \text{timeout\_and\_low}$). The preset is explicitly labeled as a feasibility fallback.
+
+### 9.2 Test Episode Count Reconciliation (18 vs 20 Episodes)
+**Date:** 2026-11-16  
+**Reconciliation Audit:**  
+Phase 1 canonical evaluation evaluated 18 test episodes (Subject 20: 5, Subject 21: 9, Subject 22: 4) where v1 caught 12/18 (66.7%). `final_test_eval.py` evaluated 20 raw annotated transitions (Subject 20: 6, Subject 21: 10, Subject 22: 4) where v1 caught 13/20 (65.0%).  
+The two differences are explained by window-majority filtering and cluster merging:
+1. **Subject 20 Task 6 (Merging):** Raw annotations contain two transitions at [9.2–11.5 s] and [15.5–20.6 s] separated by a 4.0 s gap. In window-majority processing, transition/pre-FoG labels across overlapping windows merge these into a single contiguous episode [9.2–20.6 s].
+2. **Subject 21 Task 6 (Filtering):** Raw annotations contain a short 0.9 s transition at [5.2–6.1 s]. In a 2.0 s sliding window (stride 0.5 s), this 0.9 s event never spans $>50\%$ of any window, so no window is assigned `multi_label == 2` (FoG); it is excluded by the window-majority cluster filter.
+
+**Canonical Standard:** The 18-episode window-cluster definition is the canonical standard across all evaluations; both breakdowns are reported to ensure full transparency.
