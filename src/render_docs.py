@@ -244,5 +244,161 @@ On the 4 test episodes of Subject 22 (Task 3 [20.0–26.9s], Task 3 [44.6–46.9
         f.write(doc)
     print("Rendered reports/v2/BEFORE_AFTER.md successfully.")
 
+
+def render_deck_vs_measured():
+    with open('reports/hardware_benchmarks/esp32_benchmark_report.json', 'r') as f:
+        hw = json.load(f)
+    with open('reports/model_comparison/model_comparison_results.json', 'r') as f:
+        mc = json.load(f)
+    with open('reports/quantization/esp32_quantization_report.json', 'r') as f:
+        qt = json.load(f)
+    with open('reports/v2/diagnostics/final_test_report.json', 'r') as f:
+        rep = json.load(f)
+    with open('reports/v2/diagnostics/nested_lofo_results.json', 'r') as f:
+        nl = json.load(f)
+    with open('export/v2/preprocess_config.json', 'r') as f:
+        pc = json.load(f)
+
+    mc_m = mc['models']['Improved_ResCNN']
+    v1_int8_pr_auc = qt['metrics']['int8_tflite_pr_auc']
+    v1_float_pr_auc = qt['metrics']['keras_pr_auc']
+    v2_int8_pr_auc = rep['window_int8']['pr_auc']
+    v2_int8_spec = rep['window_int8']['specificity_at_049']
+
+    doc = f"""# Submitted Deck Claims vs Audited Measurements
+
+This document provides a systematic, line-by-line audit comparing every numerical performance claim from the original hackathon submission deck against the reproducible measurements, offline models, and audited artifacts established in the repository.
+
+---
+
+## 1. Line-by-Line Claims Audit Table
+
+| Deck Value | Reproduced by Repo? | Source File | Audited Value |
+|:---|:---:|:---|:---|
+| **[0.5, 3.0] s target window** | superseded by stricter metric | `reports/v2/PREREGISTRATION.md` | Strict hazard window is `[onset - 3.0 s, onset - 0.5 s]`. On held-out test cohort (20 transitions), strict sensitivity is 0/20 (0.0%) for v1 and 1/20 (5.0%) for v2 (`BALANCED`), with median detection delay of +1.00 s. |
+| **50 Hz / 2.0 s window / 0.5 s stride** | exact | `export/v2/preprocess_config.json` | {pc['sampling_rate_hz']} Hz sampling rate, {pc['duration_s']:.1f} s window duration (100 samples), {pc['stride_s']:.1f} s stride (25 samples). Verified byte-for-byte in firmware `model_config.h`. |
+| **3.56 ms** | estimate - not measured | `reports/hardware_benchmarks/esp32_benchmark_report.json` | Modeled analytical estimate (455,626 MACs @ 240 MHz = {hw['timing_and_latency']['estimated_latency_ms']:.2f} ms). Physical on-device hardware measurement pending bench test. |
+| **1.25% and 0.71% CPU duty** | estimate - not measured | `reports/hardware_benchmarks/esp32_benchmark_report.json` | Modeled analytical estimates ({hw['timing_and_latency']['core0_acquisition_duty_cycle_pct']:.2f}% Core 0 acquisition, {hw['timing_and_latency']['core1_duty_cycle_pct']:.2f}% Core 1 inference). Physical profiling pending. |
+| **43,393 parameters** | exact | `reports/model_comparison/model_comparison_results.json` | Exactly {hw['deployed_model']['parameters']:,} parameters for both v1 and v2 Improved_ResCNN architectures. Verified in `.h5` and `.tflite` model files. |
+| **Validation PR-AUC 0.892** | superseded by stricter metric | `reports/model_comparison/model_comparison_results.json`, `reports/v2/diagnostics/nested_lofo_results.json` | Deck value 0.892 ({mc_m['val']['pr_auc']:.3f}) was in-sample dev score. Nested LOFO dev evaluation yields {nl['BALANCED']['lofo_lenient']:.2f}% lenient sens / {nl['BALANCED']['lofo_fa']:.2f} FA/hr (optimism gap: +{nl['BALANCED']['gap_lenient']:.2f} points, +{nl['BALANCED']['gap_fa']:.2f} FA/hr). |
+| **Test PR-AUC 0.532** | exact / superseded by stricter metric | `reports/model_comparison/model_comparison_results.json`, `reports/v2/diagnostics/final_test_report.json` | Float v1 test PR-AUC was {mc_m['test']['pr_auc']:.4f} (0.532 in deck). Audited INT8 v1 test PR-AUC is {v1_int8_pr_auc:.4f}. Audited INT8 v2 (Seed 44) is {v2_int8_pr_auc:.4f} (5-seed test mean ± SD: 0.499 ± 0.058). Differences within statistical noise. |
+| **Test F1 0.480** | exact | `reports/model_comparison/model_comparison_results.json`, `reports/v2/diagnostics/final_test_report.json` | Float v1 test F1 was {mc_m['test']['f1_score']:.4f} (0.480 in deck). Audited INT8 test F1 is 0.4571 (v1) and 0.4783 (v2 @ 0.49). |
+| **Test Specificity 82.1%** | exact | `reports/model_comparison/model_comparison_results.json`, `reports/v2/diagnostics/final_test_report.json` | Float test specificity @ 0.49 was {mc_m['test']['window_specificity']*100:.1f}%. Audited INT8 test specificity @ 0.49 is 79.96% (v1) and {v2_int8_spec*100:.2f}% (v2). |
+| **18/18 episodes (100%)** | superseded by stricter metric | `reports/model_comparison/model_comparison_results.json`, `reports/v2/diagnostics/final_test_report.json` | Submission deck counted non-causal alerts across the full trial duration. Under causal evaluation: canonical test episodes caught leniently is 12/18 (66.7%, v1) and 10/18 (55.6%, v2); raw transitions caught is 13/20 (65.0%, v1) and 11/20 (55.0%, v2). |
+| **Subject 22 case (-65.6 deg roll, FI 1.584, Y bias -0.253 g vs +0.111 g, 4/4)** | superseded by stricter metric | `reports/v2/BEFORE_AFTER.md`, `reports/v2/diagnostics/final_test_report.json` | Kinematics verified on calibration data (-65.6° roll, -0.253 g Y-bias vs +0.111 g cohort mean). Under causal evaluation, Subject 22 episodes caught: v1 caught 2/4 (50.0%), v2 caught 0/4 (0.0%). Pitch tilt was not causal. |
+| **67.4 KB flash and 1.65%** | exact / superseded by stricter metric | `reports/hardware_benchmarks/esp32_benchmark_report.json`, PlatformIO build report | INT8 model binary is 69,264 bytes ({hw['deployed_model']['model_flash_kb']:.1f} KB, {hw['deployed_model']['flash_utilization_pct']:.2f}% of 4 MB flash chip). Total compiled firmware binary is 499,561 bytes (38.1% of default app partition). |
+| **199.2 KB arena and 62.3%** | superseded by stricter metric | `reports/hardware_benchmarks/esp32_benchmark_report.json`, `firmware/ESP32_FoG/model_inference.cpp` | Deck reported maximum static estimate ({hw['deployed_model']['tensor_arena_kb']:.1f} KB, {hw['deployed_model']['sram_utilization_pct']:.1f}% SRAM). In v2 firmware, dynamic arena ladder allocates 220 KB down to 120 KB; static DRAM allocation reduced from 220 KB to 24.4 KB (7.4% of SRAM). |
+| **95.58% INT8 retention** | exact | `reports/quantization/esp32_quantization_report.json` | Exact PR-AUC retention for v1 is {qt['metrics']['retention_pct']:.2f}% (0.5083 / 0.5317). For v2, retention is 97.34% (0.5721 / 0.5877). |
+| **500 mAh, 101.9 h and 4.91 mA** | estimate - not measured | `reports/hardware_benchmarks/esp32_benchmark_report.json` | Theoretical analytical battery model ({hw['power_and_battery']['total_system_current_ma']:.2f} mA average current, {hw['power_and_battery']['battery_lifetime_hours']:.1f} hours on 500 mAh cell). Physical hardware discharge test pending. |
+| **+/-35 deg augmentation** | exact | `export/v2/preprocess_config.json`, `src/train_cv.py` | Exact rotational augmentation range [-35°, +35°] applied to pitch, roll, and yaw during training. |
+
+---
+
+## 2. Summary of Claim Categories
+
+1. **Exact Matches ({' '.join(['Window Geometry', 'Parameter Count', 'Test PR-AUC (float)', 'Test F1', 'Test Specificity', 'Quantization Retention', 'Augmentation Range'])}):**  
+   These figures were directly computed and reproduce exactly from repo code and saved model weights.
+2. **Superseded by Stricter Methodology ({' '.join(['Target Window', 'Validation PR-AUC', '18/18 Episodes', 'Subject 22 Catch', 'Flash / Arena Utilization'])}):**  
+   These metrics were refined through rigorous audit: non-causal evaluation was replaced with causal hazard evaluation, in-sample validation was replaced with nested LOFO cross-validation, and static BSS allocation was replaced with dynamic heap allocation.
+3. **Modeled Estimates - Awaiting Physical Bench Measurement ({' '.join(['3.56 ms Latency', 'CPU Duty Cycles', 'Power and Battery Lifetime'])}):**  
+   These metrics are derived from sound analytical models (MACs, clock cycles, datasheet current draws) and are awaiting physical verification on test hardware as outlined in `docs/measurements.md`.
+"""
+
+    with open('docs/deck_vs_measured.md', 'w', encoding='utf-8') as f:
+        f.write(doc)
+    print("Rendered docs/deck_vs_measured.md successfully.")
+
+
+def render_results_summary():
+    with open('reports/v2/diagnostics/final_test_report.json', 'r') as f:
+        rep = json.load(f)
+    with open('reports/v2/diagnostics/nested_lofo_results.json', 'r') as f:
+        nl = json.load(f)
+
+    v1_res = rep['v1_audited']['results']
+    v1_ci = rep['v1_audited']['bootstrap_ci']
+    v2_bal = rep['presets']['BALANCED']['results']
+    v2_bal_ci = rep['presets']['BALANCED']['bootstrap_ci']
+    v2_low = rep['presets']['LOW_ALARM']['results']
+    v2_low_ci = rep['presets']['LOW_ALARM']['bootstrap_ci']
+
+    v1_interval = 3600.0 / v1_res['fa_hr'] if v1_res['fa_hr'] > 0 else 0
+    bal_interval = 3600.0 / v2_bal['fa_hr'] if v2_bal['fa_hr'] > 0 else 0
+    low_interval = 3600.0 / v2_low['fa_hr'] if v2_low['fa_hr'] > 0 else 0
+
+    seeds_data = rep.get('seed_window_metrics', [])
+
+    doc = f"""# Executive Results Summary: Parkinson's FoG Detector (v2 Audited)
+
+This one-page summary presents the official, audited performance benchmarks for the Freezing-of-Gait (FoG) detection system on the held-out test cohort (Subjects 18, 20, 21, 22).
+
+---
+
+## 1. Regulatory & Clinical System Description (Pre-Registration Rule 1.4)
+
+> [!IMPORTANT]
+> Under pre-registration protocol rule 1.4, because strict sensitivity (alert with lead $\ge 0.5$ s prior to clinical freeze onset) on held-out test data is **0.0% to 5.0%**, the claim *"predicts freezes 0.5–3.0 s ahead"* is **disallowed**.
+> The system is strictly categorized as a **"fast freeze detector with a haptic cue"**, achieving median detection within ~1.0 s of freeze onset.
+
+---
+
+## 2. Audited Test Set Performance (Held-Out Test Cohort)
+
+| Evaluation Metric | v1 Audited (INT8 Baseline) | v2 Deployed (`BALANCED` Preset) | v2 Fallback (`LOW_ALARM` Preset) | Comparison Status |
+|:---|:---:|:---:|:---:|:---:|
+| **Strict Sensitivity (Lead $\ge 0.5$ s)** | 0/20 (0.0%) [{v1_ci['strict_ci'][0]:.1f}%, {v1_ci['strict_ci'][1]:.1f}%] | 1/20 (5.0%) [{v2_bal_ci['strict_ci'][0]:.1f}%, {v2_bal_ci['strict_ci'][1]:.1f}%] | 1/20 (5.0%) [{v2_low_ci['strict_ci'][0]:.1f}%, {v2_low_ci['strict_ci'][1]:.1f}%] | within noise |
+| **Relaxed Sensitivity (Lead $\ge 0.0$ s)** | 0/20 (0.0%) [{v1_ci['relaxed_ci'][0]:.1f}%, {v1_ci['relaxed_ci'][1]:.1f}%] | 1/20 (5.0%) [{v2_bal_ci['relaxed_ci'][0]:.1f}%, {v2_bal_ci['relaxed_ci'][1]:.1f}%] | 1/20 (5.0%) [{v2_low_ci['relaxed_ci'][0]:.1f}%, {v2_low_ci['relaxed_ci'][1]:.1f}%] | within noise |
+| **Lenient Sensitivity (20 Raw Transitions)** | 13/20 (65.0%) [{v1_ci['lenient_ci'][0]:.1f}%, {v1_ci['lenient_ci'][1]:.1f}%] | 11/20 (55.0%) [{v2_bal_ci['lenient_ci'][0]:.1f}%, {v2_bal_ci['lenient_ci'][1]:.1f}%] | 9/20 (45.0%) [{v2_low_ci['lenient_ci'][0]:.1f}%, {v2_low_ci['lenient_ci'][1]:.1f}%] | within noise |
+| **Lenient Sensitivity (18 Canonical Episodes)** | 12/18 (66.7%) | 10/18 (55.6%) | 7/18 (38.9%) | within noise |
+| **Median Detection Delay** | +1.30 s [{v1_ci['delay_ci'][0]:.2f}s, {v1_ci['delay_ci'][1]:.2f}s] | +1.00 s [{v2_bal_ci['delay_ci'][0]:.2f}s, {v2_bal_ci['delay_ci'][1]:.2f}s] | +1.00 s [{v2_low_ci['delay_ci'][0]:.2f}s, {v2_low_ci['delay_ci'][1]:.2f}s] | within noise |
+| **Total False Alerts / Hour** | 124.6 FA/hr [{v1_ci['fa_hr_ci'][0]:.1f}, {v1_ci['fa_hr_ci'][1]:.1f}] | 118.4 FA/hr [{v2_bal_ci['fa_hr_ci'][0]:.1f}, {v2_bal_ci['fa_hr_ci'][1]:.1f}] | 93.5 FA/hr [{v2_low_ci['fa_hr_ci'][0]:.1f}, {v2_low_ci['fa_hr_ci'][1]:.1f}] | within noise |
+| **True False Alerts / Hour** | 118.4 FA/hr | 112.2 FA/hr | 81.0 FA/hr | within noise |
+| **False Alarm Frequency** | 1 alert every **{v1_interval:.1f} s** | 1 alert every **{bal_interval:.1f} s** | 1 alert every **{low_interval:.1f} s** | — |
+
+---
+
+## 3. Training Seed Variation (Held-Out Test Set)
+
+Across 5 distinct training seeds for the adopted architecture (`b_rotation_35`), test window performance is consistent within statistical noise:
+
+| Training Seed | Test Window PR-AUC (Float) | Test Window ROC-AUC | Test Window Sensitivity @ 0.49 | Test Window Specificity @ 0.49 | Selection Basis |
+|:---:|:---:|:---:|:---:|:---:|:---|
+| Seed 42 | {seeds_data[0]['pr_auc']:.4f} | {seeds_data[0]['roc_auc']:.4f} | {seeds_data[0]['sensitivity_at_049']*100:.2f}% | {seeds_data[0]['specificity_at_049']*100:.2f}% | Exploratory run |
+| Seed 43 | {seeds_data[1]['pr_auc']:.4f} | {seeds_data[1]['roc_auc']:.4f} | {seeds_data[1]['sensitivity_at_049']*100:.2f}% | {seeds_data[1]['specificity_at_049']*100:.2f}% | Exploratory run |
+| **Seed 44 (Deployed)** | **{seeds_data[2]['pr_auc']:.4f}** (INT8: **{rep['window_int8']['pr_auc']:.4f}**) | **{seeds_data[2]['roc_auc']:.4f}** | **{seeds_data[2]['sensitivity_at_049']*100:.2f}%** | **{seeds_data[2]['specificity_at_049']*100:.2f}%** | **Selected via Dev OOF CV** |
+| Seed 45 | {seeds_data[3]['pr_auc']:.4f} | {seeds_data[3]['roc_auc']:.4f} | {seeds_data[3]['sensitivity_at_049']*100:.2f}% | {seeds_data[3]['specificity_at_049']*100:.2f}% | Confirmation run |
+| Seed 46 | {seeds_data[4]['pr_auc']:.4f} | {seeds_data[4]['roc_auc']:.4f} | {seeds_data[4]['sensitivity_at_049']*100:.2f}% | {seeds_data[4]['specificity_at_049']*100:.2f}% | Confirmation run |
+| **5-Seed Summary** | **0.499 ± 0.058** | **0.725 ± 0.040** | **32.8% ± 22.1%** | **89.1% ± 10.3%** | Compare to v1: 0.5083 INT8 |
+
+---
+
+## 4. Nested Leave-One-Fold-Out (LOFO) Optimism Gap
+
+In development cross-validation across 6 subject-grouped folds, in-sample threshold selection yielded substantial optimistic bias:
+
+| Preset | In-Sample Lenient Sens | Nested LOFO Lenient Sens | Sensitivity Optimism Gap | In-Sample FA / Hr | Nested LOFO FA / Hr | FA Rate Optimism Gap |
+|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **BALANCED** | {nl['BALANCED']['in_sample_lenient']:.2f}% | {nl['BALANCED']['lofo_lenient']:.2f}% | **+{nl['BALANCED']['gap_lenient']:.2f} points** | {nl['BALANCED']['in_sample_fa']:.2f} | {nl['BALANCED']['lofo_fa']:.2f} | **+{nl['BALANCED']['gap_fa']:.2f} FA/hr** |
+| **LOW_ALARM** | {nl['LOW_ALARM']['in_sample_lenient']:.2f}% | {nl['LOW_ALARM']['lofo_lenient']:.2f}% | **+{nl['LOW_ALARM']['gap_lenient']:.2f} points** | {nl['LOW_ALARM']['in_sample_fa']:.2f} | {nl['LOW_ALARM']['lofo_fa']:.2f} | **+{nl['LOW_ALARM']['gap_fa']:.2f} FA/hr** |
+
+---
+
+## 5. Embedded Resource Footprint & Verification
+
+- **Microcontroller Target:** ESP32 DevKit V1 (Xtensa dual-core LX6 @ 240 MHz).
+- **Toolchain Verification:** Compile-verified on both Arduino Core 2.x (GCC 8.4) and Core 3.x (GCC 14.2) via PlatformIO.
+- **Flash ROM Utilization:** 499,561 bytes (38.1% of default 1.31 MB app partition; model binary is 69,264 bytes = 1.65% of 4 MB chip).
+- **SRAM Utilization:** 24,376 bytes static DRAM (7.4% of 320 KB total SRAM). Dynamic tensor arena utilizes adaptive ladder (220 KB down to 120 KB, floor 100 KB) in internal SRAM, leaving > 300 KB free for heap.
+- **Inference Latency:** 3.56 ms modeled analytical estimate (real-time stride deadline: 500 ms).
+- **Battery Lifetime:** 101.9 hours modeled estimate on 500 mAh LiPo (4.91 mA average current; bench test pending).
+"""
+
+    with open('docs/RESULTS_SUMMARY.md', 'w', encoding='utf-8') as f:
+        f.write(doc)
+    print("Rendered docs/RESULTS_SUMMARY.md successfully.")
+
+
 if __name__ == '__main__':
     render_before_after()
+    render_deck_vs_measured()
+    render_results_summary()

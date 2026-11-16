@@ -1,6 +1,8 @@
 # Wearable Parkinson's Freezing-of-Gait (FoG) Detection & Haptic Cueing System
 
-> **Integrity Notice:** The version submitted to the hackathon is permanently preserved at git tag `v1-submitted`. The current repository contains post-submission integrity auditing, firmware hardening, and preregistered clinical evaluations documented in [reports/v2/BEFORE_AFTER.md](reports/v2/BEFORE_AFTER.md) and [reports/v2/PREREGISTRATION.md](reports/v2/PREREGISTRATION.md).
+> **Release & Versioning Reference:**
+> - [`v1-submitted`](https://github.com/Aarush-300/FoG-prediction/releases/tag/v1-submitted): The original, immutable codebase as submitted to the hackathon (`e8e387f`).
+> - [`v2-post-submission`](https://github.com/Aarush-300/FoG-prediction/releases/tag/v2-post-submission): The audited, hardened release featuring PlatformIO dual-core compilation, causal hazard evaluation, and pre-registered clinical metrics without unverified claims (see [RESULTS_SUMMARY.md](docs/RESULTS_SUMMARY.md), [BEFORE_AFTER.md](reports/v2/BEFORE_AFTER.md), and [deck_vs_measured.md](docs/deck_vs_measured.md)).
 
 An embedded TinyML wearable system deployed on an **ESP32 DevKit V1 (ESP32-WROOM-32 @ 240 MHz)** with an external **InvenSense MPU6050 6-Axis IMU** and haptic motor, functioning as a **fast freeze detector with a haptic cue** for Parkinson's disease locomotion monitoring.
 
