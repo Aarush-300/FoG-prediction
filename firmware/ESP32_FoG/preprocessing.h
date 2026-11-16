@@ -1,7 +1,14 @@
 #ifndef PREPROCESSING_H
 #define PREPROCESSING_H
 
+#if defined(ARDUINO)
 #include <Arduino.h>
+#else
+#include <stdint.h>
+#include <stddef.h>
+#include <string.h>
+#include <math.h>
+#endif
 #include "model_config.h"
 
 /**
