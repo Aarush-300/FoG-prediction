@@ -12,7 +12,12 @@
 > 2. **FSM Cooldown Locking:** Detailed timeline analysis revealed that pre-freeze spikes frequently locked the firmware FSM into persistent `COOLDOWN` due to the "needs $p < \text{low}$" re-arm condition, muting alerts throughout long freeze episodes.
 > 3. **Denominator Reconciliation:** Normal gait time is now formally defined from $t = 2.0\text{ s}$ (the earliest possible 100-sample window completion) to hazard onset, removing $40.0\text{ s}$ of un-evaluable initial buffer across test trials ($580.60\text{ s} = 0.1613\text{ h}$).
 > 4. **Inner Validation Discipline for Early Stopping (Pre-Training Amendment):** To prevent leakage into out-of-fold (OOF) evaluation, early stopping and model checkpointing during 6-fold CV shall NOT monitor the outer held-out fold. Instead, each fold holds out a deterministic, stratified inner validation set of 2 subjects from the 15 training subjects. The 3 outer held-out subjects are strictly evaluated post-training for pure OOF generation.
-> 5. **Trivial Baselines & Decision Rule (Pre-Training Amendment):** Three trivial baselines (taskID only, taskID + trial elapsed time, and 14 hand-crafted kinematic features with logistic regression) are evaluated under the exact same 6-fold CV. The ResCNN signal claim requires pooled OOF ROC-AUC $\ge 0.65$ with cluster-bootstrap 95% CI excluding $0.5$, AND a pooled AUC at least $0.05$ above the best trivial baseline.
+> 5. **Experiment (g) Conclusion & Protocol Gateway (Pre-Training Amendment):** Experiment (g) empirical evaluation confirmed a weak early kinematic signal present (pooled ROC-AUC $0.7339$, $1.92\text{--}2.36\times$ PR lift over base rate, but matched normal controls showed overlapping CI difference $[-0.115, +0.479]$). Experiment (g) is officially accepted as "weak early signal present", not "prediction supported". The pre-FoG-only model in (g) is strictly a diagnostic, not a deployable candidate.
+> 6. **Deployable Objective & Winner Rule for Experiments (b), (e), (f) (Pre-Training Amendment):**
+>    - **Deployable Training Objective:** Experiments (b), (e), (f) use the full deployable binary task: positives = pre-FoG (1) + transition (-1) + active FoG (2) windows (v1 binary label), unless variant (f) explicitly states otherwise.
+>    - **Full Continuous Trial & FSM Evaluation:** Evaluated on continuous trial replays using pooled OOF predictions with the FSM grid selected to maximize lenient sensitivity subject to $\text{FA/hr} \le 30.0$. Metrics reported: strict sensitivity, relaxed sensitivity ($\Delta t_{\text{lead}} \ge 0$), lenient sensitivity, median detection delay, % alerted within $1.0\text{ s}$ of onset, and FA/hr.
+>    - **Optimism Gap Reporting:** FSM parameters and metrics are reported both (i) in-sample on pooled OOF and (ii) via leave-one-fold-out (LOFO: parameters chosen on 5 folds, evaluated on the 6th held-out fold).
+>    - **Winner Rule:** A candidate variant replaces the baseline recipe ONLY IF its fold-level paired improvement in lenient sensitivity at the $\le 30.0\text{ FA/hr}$ budget exceeds the seed-to-seed standard deviation ($\sigma_{\text{seed}}$) measured from 3 seeds of the baseline (`baseline_v1` across seeds 42, 43, 44). Otherwise, the v1 recipe is retained.
 > All model training, hyperparameter tuning, and operating point decisions remain strictly blinded to test set data, executed strictly on the 18 development subjects via 6-fold cross-validation.
 
 ---
@@ -111,30 +116,26 @@ Continuous trials are evaluated by ordering windows chronologically by timestamp
 
 Experiments proceed in strict priority order. Any variant must demonstrate statistically significant improvement over baseline on 6-fold OOF CV (mean gain exceeding standard error across folds) to be retained.
 
-### Priority Execution Order:
+### Priority Execution Order & Winner Rules for Deployable Candidates:
 
-1. **Experiment (g) — Early Signal Check (GO/NO-GO Gateway):**
-   - Train `Improved_ResCNN` strictly on **Pure Pre-FoG (label 1) vs Normal Gait (label 0)** windows only (dropping transition label -1 and active freeze label 2).
-   - Evaluated across 6-fold subject-grouped CV with 3 fixed random seeds (`[42, 43, 44]`), using 2 inner-validation subjects for early stopping and 3 outer held-out subjects for OOF evaluation.
-   - Evaluated against three trivial baselines under identical 6-fold CV:
-     - (a) Logistic regression on `taskID` (one-hot).
-     - (b) Logistic regression on `taskID` + time since trial start (`start_time_s`).
-     - (c) Hand-crafted feature model (accel/gyro std, mean abs gyro, dominant frequency, 3-8 Hz / 0.5-3 Hz Freeze Index ratio) with logistic regression.
-   - **Pre-Registered Decision Rule:**
-     "The ResCNN signal claim requires pooled OOF ROC-AUC $\ge 0.65$ with the cluster-bootstrap CI excluding 0.5, AND a pooled AUC at least 0.05 above the best trivial baseline."
-     $$\text{If pooled OOF ROC-AUC } < 0.65 \quad \text{OR 95\% cluster-bootstrap CI includes } 0.50 \quad \text{OR margin over best baseline } < 0.05:$$
-     The scientific claim of *"anticipatory early prediction 0.5–3.0s ahead"* is declared **empirically unsupported**, and the primary objective of the system is formally re-scoped to **FAST DETECTION** (rapid reaction upon freeze inception).
-   - **Secondary Per-Episode Early-Signal Reporting:** For every development episode, report the **maximum EMA smoothed probability** in the extended pre-freeze horizon $[T_{\text{onset}} - 5.0\text{ s}, T_{\text{onset}} - 0.5\text{ s}]$ to test if any sub-cohort of episodes exhibits detectable pre-freeze dynamics prior to the $0.5\text{ s}$ transition boundary.
-   - **Cluster Bootstrap CIs:** All confidence intervals resample whole subjects (cluster bootstrap across dev subjects, 1,000 iterations). Both per-fold AUCs and pooled OOF AUC are reported.
+> [!IMPORTANT]
+> **Deployable Candidate Training Constraint:** Experiments (b), (e), (f) are trained with the **deployable objective**: positives = pre-FoG (1) + transition (-1) + active FoG (2) windows (v1 binary label), unless variant (f) explicitly states otherwise. Experiment (g)'s pre-FoG-only model was purely a diagnostic, not a deployable candidate.
+>
+> **Winner Selection Rule:** A candidate variant replaces the baseline recipe ONLY IF its fold-level paired improvement in lenient sensitivity at the $\le 30.0\text{ FA/hr}$ budget exceeds the seed-to-seed standard deviation ($\sigma_{\text{seed}}$) measured across 3 seeds (`[42, 43, 44]`) of the baseline recipe (`b_rotation_35`). Otherwise, the baseline recipe is retained.
+>
+> **Optimism Gap Discipline:** For every variant, FSM parameters are reported both (i) in-sample on pooled OOF and (ii) by leave-one-fold-out (LOFO: parameters tuned on 5 training folds, evaluated on the held-out 6th fold).
+
+1. **Baseline Recipe Retrain (`b_rotation_35` / Baseline v1):**
+   - 3D Euler rotation range $\pm 35^\circ$, 1x pre-FoG loss weight, standard binary labels.
+   - Evaluated across 3 seeds (`[42, 43, 44]`) to measure baseline performance and seed-to-seed standard deviation $\sigma_{\text{seed}}$.
 2. **Experiment (b) — 3D Euler Rotation Range:**
-   - Test roll range up to $\pm 35^\circ$ vs $\pm 50^\circ$ vs $\pm 70^\circ$ (pitch/yaw $\le 35^\circ$) applied in physical units ($g, ^\circ/\text{s}$) prior to normalization. Selection by highest OOF PR-AUC and resilience to extreme sensor mounting tilt.
+   - Test roll range up to $\pm 35^\circ$ (baseline) vs $\pm 50^\circ$ (`b_rotation_50`) vs $\pm 70^\circ$ (`b_rotation_70`) applied in physical units ($g, ^\circ/\text{s}$) prior to normalization. Seed 42.
 3. **Experiment (e) — Pre-FoG Loss Weighting:**
-   - Pre-FoG window loss weights of $1\times$ vs $2\times$ vs $4\times$ relative to normal gait windows.
+   - Pre-FoG window loss weights of $1\times$ (baseline) vs $2\times$ (`e_prefog_2x`) vs $4\times$ (`e_prefog_4x`) relative to normal gait windows. Seed 42.
 4. **Experiment (f) — Label Definition Variants:**
-   - Variant 1: v1 default labels (transition windows count as positive).
-   - Variant 2: Dropping transition windows (label -1) entirely from training data.
-   - Variant 3: Clean positives: positives = pure pre-FoG (label 1) + active FoG (label 2) only.
-   - Evaluated using both STRICT and RELAXED metrics.
+   - Variant 1: Baseline v1 labels (transition windows count as positive).
+   - Variant 2: `f_drop_transition`: Dropping transition windows (label -1) entirely from training data. Seed 42.
+   - Variant 3: `f_clean_positives`: Positives = pure pre-FoG (label 1) + active FoG (label 2) only; label -1 dropped from train and eval. Seed 42.
 5. **Contingent Exploration (Only if budget permits):**
    - (c) Sensor mismatch & noise injection (gain $\pm 5\%$, bias $\pm 0.03\text{ g}$, $20\text{--}24\text{ Hz}$ motor vibration).
    - (d) Loss formulations (Focal Loss $\gamma \in \{1, 2\}$, Label Smoothing $0.05$).
