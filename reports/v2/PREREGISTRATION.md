@@ -68,6 +68,11 @@ Continuous trials are evaluated by ordering windows chronologically by timestamp
    - **% Alerted within $1.0\text{ s}$ of Onset:** Fraction of caught episodes with alert timestamp $\le T_{\text{onset}} + 1.0\text{ s}$.
    - **Lenient Episode Sensitivity** and **False Alerts / Hour**.
    - Note: STRICT sensitivity is retained and reported in all summaries regardless of scoping.
+5. **Secondary Evaluation Horizon Analyses (Phase 1 Diagnostics Follow-Up):**
+   - *Primary Hazard Window:* Starts at $T_{\text{onset}} - 3.0\text{ s}$ ($[T_{\text{onset}} - 3.0\text{ s}, T_{\text{offset}}]$).
+   - *Secondary Hazard Window:* Starts at $T_{\text{onset}} - 5.0\text{ s}$ ($[T_{\text{onset}} - 5.0\text{ s}, T_{\text{offset}}]$).
+   - Both false alerts per hour and lenient episode sensitivity will be reported side-by-side using the primary $3.0\text{ s}$ horizon and secondary $5.0\text{ s}$ horizon to evaluate whether earlier alerts (e.g. at $t = 27.5\text{ s}$ in Sub 20 Task 6) reflect extended anticipatory cues rather than false positives.
+   - Primary decision rules remain strictly anchored to the primary $3.0\text{ s}$ hazard window.
 
 ---
 
@@ -100,6 +105,7 @@ Experiments proceed in strict priority order. Any variant must demonstrate stati
    - **Pre-Registered Decision Rule:**
      $$\text{If pooled OOF ROC-AUC } < 0.65 \quad \text{OR 95\% bootstrap CI includes } 0.50:$$
      The scientific claim of *"anticipatory early prediction 0.5–3.0s ahead"* is declared **empirically unsupported**, and the primary objective of the system is formally re-scoped to **FAST DETECTION** (rapid reaction upon freeze inception).
+   - **Secondary Per-Episode Early-Signal Reporting:** For every development episode, report the **maximum EMA smoothed probability** in the extended pre-freeze horizon $[T_{\text{onset}} - 5.0\text{ s}, T_{\text{onset}} - 0.5\text{ s}]$ to test if any sub-cohort of episodes exhibits detectable pre-freeze dynamics prior to the $0.5\text{ s}$ transition boundary.
 2. **Experiment (b) — 3D Euler Rotation Range:**
    - Test roll range up to $\pm 35^\circ$ vs $\pm 50^\circ$ vs $\pm 70^\circ$ (pitch/yaw $\le 35^\circ$) applied in physical units ($g, ^\circ/\text{s}$) prior to normalization. Selection by highest OOF PR-AUC and resilience to extreme sensor mounting tilt.
 3. **Experiment (e) — Pre-FoG Loss Weighting:**
