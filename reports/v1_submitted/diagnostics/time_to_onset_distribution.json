@@ -1,0 +1,82 @@
+[
+  {
+    "bin_start_s": -3.0,
+    "bin_end_s": -2.5,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.262664466475447,
+    "mean_prob_int8_tflite": 0.2819010416666667,
+    "clinical_phase": "Pure Pre-FoG (>0.5s)"
+  },
+  {
+    "bin_start_s": -2.5,
+    "bin_end_s": -2.0,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.1850587395343205,
+    "mean_prob_int8_tflite": 0.2007378472222222,
+    "clinical_phase": "Pure Pre-FoG (>0.5s)"
+  },
+  {
+    "bin_start_s": -2.0,
+    "bin_end_s": -1.5,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.188538537800519,
+    "mean_prob_int8_tflite": 0.19921875,
+    "clinical_phase": "Pure Pre-FoG (>0.5s)"
+  },
+  {
+    "bin_start_s": -1.5,
+    "bin_end_s": -1.0,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.203811126243737,
+    "mean_prob_int8_tflite": 0.20768229166666666,
+    "clinical_phase": "Pure Pre-FoG (>0.5s)"
+  },
+  {
+    "bin_start_s": -1.0,
+    "bin_end_s": -0.5,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.21705630750026708,
+    "mean_prob_int8_tflite": 0.22395833333333334,
+    "clinical_phase": "Pure Pre-FoG (>0.5s)"
+  },
+  {
+    "bin_start_s": -0.5,
+    "bin_end_s": 0.0,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.3437626964102189,
+    "mean_prob_int8_tflite": 0.345703125,
+    "clinical_phase": "Immediate Transition (<0.5s)"
+  },
+  {
+    "bin_start_s": 0.0,
+    "bin_end_s": 0.5,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.42678012222879463,
+    "mean_prob_int8_tflite": 0.4329427083333333,
+    "clinical_phase": "Active Freeze"
+  },
+  {
+    "bin_start_s": 0.5,
+    "bin_end_s": 1.0,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.6620835210714076,
+    "mean_prob_int8_tflite": 0.6631944444444444,
+    "clinical_phase": "Active Freeze"
+  },
+  {
+    "bin_start_s": 1.0,
+    "bin_end_s": 1.5,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.6718314063424865,
+    "mean_prob_int8_tflite": 0.6690538194444444,
+    "clinical_phase": "Active Freeze"
+  },
+  {
+    "bin_start_s": 1.5,
+    "bin_end_s": 2.0,
+    "window_count": 18,
+    "mean_prob_keras_float": 0.6551863805701336,
+    "mean_prob_int8_tflite": 0.6519097222222222,
+    "clinical_phase": "Active Freeze"
+  }
+]

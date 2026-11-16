@@ -1,0 +1,166 @@
+{
+  "missed_episodes_count": 6,
+  "total_episodes": 18,
+  "auc_by_label_group": {
+    "validation": {
+      "window_counts": {
+        "total": 1085,
+        "normal_0": 666,
+        "pre_fog_1": 47,
+        "transition_minus1": 43,
+        "active_fog_2": 329
+      },
+      "pre_fog_1_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.6599897770110537,
+          "pr_auc": 0.15900639448809967
+        },
+        "int8_tflite": {
+          "roc_auc": 0.5814644431665708,
+          "pr_auc": 0.10211212802169808
+        }
+      },
+      "transition_minus1_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.788497800125707,
+          "pr_auc": 0.3724793024925873
+        },
+        "int8_tflite": {
+          "roc_auc": 0.7284726587052169,
+          "pr_auc": 0.2548056184036575
+        }
+      },
+      "active_fog_2_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.9649816990242522,
+          "pr_auc": 0.9270800234316431
+        },
+        "int8_tflite": {
+          "roc_auc": 0.9402616902616903,
+          "pr_auc": 0.880425466817328
+        }
+      }
+    },
+    "test": {
+      "window_counts": {
+        "total": 1462,
+        "normal_0": 1098,
+        "pre_fog_1": 103,
+        "transition_minus1": 90,
+        "active_fog_2": 171
+      },
+      "pre_fog_1_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.5872902187560789,
+          "pr_auc": 0.09406555828768395
+        },
+        "int8_tflite": {
+          "roc_auc": 0.5741595486940068,
+          "pr_auc": 0.09096819192357114
+        }
+      },
+      "transition_minus1_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.7515077919449504,
+          "pr_auc": 0.1665529804467916
+        },
+        "int8_tflite": {
+          "roc_auc": 0.7303025703298928,
+          "pr_auc": 0.15185803970281828
+        }
+      },
+      "active_fog_2_vs_normal_0": {
+        "keras_float": {
+          "roc_auc": 0.841652552754077,
+          "pr_auc": 0.5757013378572935
+        },
+        "int8_tflite": {
+          "roc_auc": 0.8299939283545841,
+          "pr_auc": 0.5466211298975954
+        }
+      }
+    }
+  },
+  "time_to_onset_distribution": [
+    {
+      "bin_start_s": -3.0,
+      "bin_end_s": -2.5,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.262664466475447,
+      "mean_prob_int8_tflite": 0.2819010416666667,
+      "clinical_phase": "Pure Pre-FoG (>0.5s)"
+    },
+    {
+      "bin_start_s": -2.5,
+      "bin_end_s": -2.0,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.1850587395343205,
+      "mean_prob_int8_tflite": 0.2007378472222222,
+      "clinical_phase": "Pure Pre-FoG (>0.5s)"
+    },
+    {
+      "bin_start_s": -2.0,
+      "bin_end_s": -1.5,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.188538537800519,
+      "mean_prob_int8_tflite": 0.19921875,
+      "clinical_phase": "Pure Pre-FoG (>0.5s)"
+    },
+    {
+      "bin_start_s": -1.5,
+      "bin_end_s": -1.0,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.203811126243737,
+      "mean_prob_int8_tflite": 0.20768229166666666,
+      "clinical_phase": "Pure Pre-FoG (>0.5s)"
+    },
+    {
+      "bin_start_s": -1.0,
+      "bin_end_s": -0.5,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.21705630750026708,
+      "mean_prob_int8_tflite": 0.22395833333333334,
+      "clinical_phase": "Pure Pre-FoG (>0.5s)"
+    },
+    {
+      "bin_start_s": -0.5,
+      "bin_end_s": 0.0,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.3437626964102189,
+      "mean_prob_int8_tflite": 0.345703125,
+      "clinical_phase": "Immediate Transition (<0.5s)"
+    },
+    {
+      "bin_start_s": 0.0,
+      "bin_end_s": 0.5,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.42678012222879463,
+      "mean_prob_int8_tflite": 0.4329427083333333,
+      "clinical_phase": "Active Freeze"
+    },
+    {
+      "bin_start_s": 0.5,
+      "bin_end_s": 1.0,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.6620835210714076,
+      "mean_prob_int8_tflite": 0.6631944444444444,
+      "clinical_phase": "Active Freeze"
+    },
+    {
+      "bin_start_s": 1.0,
+      "bin_end_s": 1.5,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.6718314063424865,
+      "mean_prob_int8_tflite": 0.6690538194444444,
+      "clinical_phase": "Active Freeze"
+    },
+    {
+      "bin_start_s": 1.5,
+      "bin_end_s": 2.0,
+      "window_count": 18,
+      "mean_prob_keras_float": 0.6551863805701336,
+      "mean_prob_int8_tflite": 0.6519097222222222,
+      "clinical_phase": "Active Freeze"
+    }
+  ]
+}

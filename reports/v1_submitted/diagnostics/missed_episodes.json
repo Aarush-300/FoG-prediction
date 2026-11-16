@@ -1,0 +1,1112 @@
+{
+  "total_episodes": 18,
+  "duration_distribution_s": {
+    "min": 1.2999999999999972,
+    "p25": 2.1400000000000006,
+    "median": 3.8499999999999996,
+    "p75": 6.024999999999999,
+    "max": 19.9,
+    "mean": 5.053333333333332
+  },
+  "missed_count": 6,
+  "missed_episodes": [
+    {
+      "subjectID": 20,
+      "sessionID": 1,
+      "taskID": 6,
+      "onset": 31.6,
+      "offset": 32.9,
+      "duration": 1.2999999999999972,
+      "max_raw_prob": 0.88671875,
+      "max_ema_prob": 0.8432196481746888,
+      "root_cause": "(c) FSM was in COOLDOWN from an earlier alert",
+      "hazard_timeline": [
+        {
+          "t_end": 29.0,
+          "now_ms": 29000,
+          "raw_p": 0.86328125,
+          "ema_p": 0.8432196481746888,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 29.5,
+          "now_ms": 29500,
+          "raw_p": 0.56640625,
+          "ema_p": 0.6771316092698756,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 30.0,
+          "now_ms": 30000,
+          "raw_p": 0.88671875,
+          "ema_p": 0.8028838937079502,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 30.5,
+          "now_ms": 30500,
+          "raw_p": 0.703125,
+          "ema_p": 0.7430285574831801,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 31.0,
+          "now_ms": 31000,
+          "raw_p": 0.61328125,
+          "ema_p": 0.665180172993272,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 31.5,
+          "now_ms": 31500,
+          "raw_p": 0.7421875,
+          "ema_p": 0.7113845691973089,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 32.0,
+          "now_ms": 32000,
+          "raw_p": 0.32421875,
+          "ema_p": 0.47908507767892355,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 32.5,
+          "now_ms": 32500,
+          "raw_p": 0.87109375,
+          "ema_p": 0.7142902810715693,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        }
+      ]
+    },
+    {
+      "subjectID": 20,
+      "sessionID": 1,
+      "taskID": 6,
+      "onset": 86.98,
+      "offset": 88.28,
+      "duration": 1.2999999999999972,
+      "max_raw_prob": 0.91015625,
+      "max_ema_prob": 0.603128489033738,
+      "root_cause": "(b) crossed but freeze ended before the confirmations completed",
+      "hazard_timeline": [
+        {
+          "t_end": 84.0,
+          "now_ms": 84000,
+          "raw_p": 0.91015625,
+          "ema_p": 0.603128489033738,
+          "st_before": 0,
+          "st_after": 1,
+          "count": 1,
+          "fired": false
+        },
+        {
+          "t_end": 84.5,
+          "now_ms": 84500,
+          "raw_p": 0.08984375,
+          "ema_p": 0.29515764561349517,
+          "st_before": 1,
+          "st_after": 1,
+          "count": 1,
+          "fired": false
+        },
+        {
+          "t_end": 85.0,
+          "now_ms": 85000,
+          "raw_p": 0.08984375,
+          "ema_p": 0.17196930824539808,
+          "st_before": 1,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 85.5,
+          "now_ms": 85500,
+          "raw_p": 0.015625,
+          "ema_p": 0.07816272329815922,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 86.0,
+          "now_ms": 86000,
+          "raw_p": 0.0,
+          "ema_p": 0.03126508931926369,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 86.5,
+          "now_ms": 86500,
+          "raw_p": 0.0078125,
+          "ema_p": 0.017193535727705475,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 87.0,
+          "now_ms": 87000,
+          "raw_p": 0.0078125,
+          "ema_p": 0.01156491429108219,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 87.5,
+          "now_ms": 87500,
+          "raw_p": 0.03515625,
+          "ema_p": 0.025719715716432875,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 88.0,
+          "now_ms": 88000,
+          "raw_p": 0.234375,
+          "ema_p": 0.15091288628657315,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        }
+      ]
+    },
+    {
+      "subjectID": 21,
+      "sessionID": 1,
+      "taskID": 1,
+      "onset": 27.1,
+      "offset": 28.8,
+      "duration": 1.6999999999999993,
+      "max_raw_prob": 0.35546875,
+      "max_ema_prob": 0.29254883047440494,
+      "root_cause": "(a) never crossed the high threshold (raw prob peaked below 0.49)",
+      "hazard_timeline": [
+        {
+          "t_end": 24.5,
+          "now_ms": 24500,
+          "raw_p": 0.01953125,
+          "ema_p": 0.029602774665789307,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 25.0,
+          "now_ms": 25000,
+          "raw_p": 0.0078125,
+          "ema_p": 0.016528609866315724,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 25.5,
+          "now_ms": 25500,
+          "raw_p": 0.01953125,
+          "ema_p": 0.01833019394652629,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 26.0,
+          "now_ms": 26000,
+          "raw_p": 0.0390625,
+          "ema_p": 0.030769577578610516,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 26.5,
+          "now_ms": 26500,
+          "raw_p": 0.03515625,
+          "ema_p": 0.03340158103144421,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 27.0,
+          "now_ms": 27000,
+          "raw_p": 0.03515625,
+          "ema_p": 0.034454382412577686,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 27.5,
+          "now_ms": 27500,
+          "raw_p": 0.24609375,
+          "ema_p": 0.16143800296503105,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 28.0,
+          "now_ms": 28000,
+          "raw_p": 0.22265625,
+          "ema_p": 0.1981689511860124,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 28.5,
+          "now_ms": 28500,
+          "raw_p": 0.35546875,
+          "ema_p": 0.29254883047440494,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        }
+      ]
+    },
+    {
+      "subjectID": 21,
+      "sessionID": 1,
+      "taskID": 7,
+      "onset": 9.3,
+      "offset": 29.2,
+      "duration": 19.9,
+      "max_raw_prob": 0.99609375,
+      "max_ema_prob": 0.99608638438002,
+      "root_cause": "(c) FSM was in COOLDOWN from an earlier alert",
+      "hazard_timeline": [
+        {
+          "t_end": 6.5,
+          "now_ms": 6500,
+          "raw_p": 0.80078125,
+          "ema_p": 0.8326755972,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 7.0,
+          "now_ms": 7000,
+          "raw_p": 0.8203125,
+          "ema_p": 0.82525773888,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 7.5,
+          "now_ms": 7500,
+          "raw_p": 0.87890625,
+          "ema_p": 0.857446845552,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 8.0,
+          "now_ms": 8000,
+          "raw_p": 0.80078125,
+          "ema_p": 0.8234474882208,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 8.5,
+          "now_ms": 8500,
+          "raw_p": 0.88671875,
+          "ema_p": 0.86141024528832,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 9.0,
+          "now_ms": 9000,
+          "raw_p": 0.84765625,
+          "ema_p": 0.8531578481153279,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 9.5,
+          "now_ms": 9500,
+          "raw_p": 0.83984375,
+          "ema_p": 0.8451693892461312,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 10.0,
+          "now_ms": 10000,
+          "raw_p": 0.95703125,
+          "ema_p": 0.9122865056984525,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 10.5,
+          "now_ms": 10500,
+          "raw_p": 0.97265625,
+          "ema_p": 0.948508352279381,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 11.0,
+          "now_ms": 11000,
+          "raw_p": 0.96875,
+          "ema_p": 0.9606533409117524,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 11.5,
+          "now_ms": 11500,
+          "raw_p": 0.98046875,
+          "ema_p": 0.9725425863647009,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 12.0,
+          "now_ms": 12000,
+          "raw_p": 0.96875,
+          "ema_p": 0.9702670345458804,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 12.5,
+          "now_ms": 12500,
+          "raw_p": 0.9375,
+          "ema_p": 0.9506068138183521,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 13.0,
+          "now_ms": 13000,
+          "raw_p": 0.88671875,
+          "ema_p": 0.9122739755273408,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 13.5,
+          "now_ms": 13500,
+          "raw_p": 0.85546875,
+          "ema_p": 0.8781908402109364,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 14.0,
+          "now_ms": 14000,
+          "raw_p": 0.87890625,
+          "ema_p": 0.8786200860843746,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 14.5,
+          "now_ms": 14500,
+          "raw_p": 0.953125,
+          "ema_p": 0.9233230344337499,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 15.0,
+          "now_ms": 15000,
+          "raw_p": 0.96875,
+          "ema_p": 0.9505792137734999,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 15.5,
+          "now_ms": 15500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9778879355093999,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 16.0,
+          "now_ms": 16000,
+          "raw_p": 0.98046875,
+          "ema_p": 0.97943642420376,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 16.5,
+          "now_ms": 16500,
+          "raw_p": 0.984375,
+          "ema_p": 0.982399569681504,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 17.0,
+          "now_ms": 17000,
+          "raw_p": 0.91796875,
+          "ema_p": 0.9437410778726016,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 17.5,
+          "now_ms": 17500,
+          "raw_p": 0.94921875,
+          "ema_p": 0.9470276811490406,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 18.0,
+          "now_ms": 18000,
+          "raw_p": 0.984375,
+          "ema_p": 0.9694360724596163,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 18.5,
+          "now_ms": 18500,
+          "raw_p": 0.9609375,
+          "ema_p": 0.9643369289838465,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 19.0,
+          "now_ms": 19000,
+          "raw_p": 0.98828125,
+          "ema_p": 0.9787035215935386,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 19.5,
+          "now_ms": 19500,
+          "raw_p": 0.9921875,
+          "ema_p": 0.9867939086374155,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 20.0,
+          "now_ms": 20000,
+          "raw_p": 0.95703125,
+          "ema_p": 0.9689363134549662,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 20.5,
+          "now_ms": 20500,
+          "raw_p": 0.9765625,
+          "ema_p": 0.9735120253819864,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 21.0,
+          "now_ms": 21000,
+          "raw_p": 0.984375,
+          "ema_p": 0.9800298101527946,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 21.5,
+          "now_ms": 21500,
+          "raw_p": 0.9921875,
+          "ema_p": 0.9873244240611179,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 22.0,
+          "now_ms": 22000,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9925860196244471,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 22.5,
+          "now_ms": 22500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.994690657849779,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 23.0,
+          "now_ms": 23000,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9955325131399115,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 23.5,
+          "now_ms": 23500,
+          "raw_p": 0.984375,
+          "ema_p": 0.9888380052559647,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 24.0,
+          "now_ms": 24000,
+          "raw_p": 0.98828125,
+          "ema_p": 0.9885039521023858,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 24.5,
+          "now_ms": 24500,
+          "raw_p": 0.9921875,
+          "ema_p": 0.9907140808409544,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 25.0,
+          "now_ms": 25000,
+          "raw_p": 0.9921875,
+          "ema_p": 0.9915981323363818,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 25.5,
+          "now_ms": 25500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9942955029345528,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 26.0,
+          "now_ms": 26000,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9953744511738212,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 26.5,
+          "now_ms": 26500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9958060304695284,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 27.0,
+          "now_ms": 27000,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9959786621878114,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 27.5,
+          "now_ms": 27500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9960477148751246,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 28.0,
+          "now_ms": 28000,
+          "raw_p": 0.99609375,
+          "ema_p": 0.9960753359500498,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 28.5,
+          "now_ms": 28500,
+          "raw_p": 0.99609375,
+          "ema_p": 0.99608638438002,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        },
+        {
+          "t_end": 29.0,
+          "now_ms": 29000,
+          "raw_p": 0.984375,
+          "ema_p": 0.9890595537520079,
+          "st_before": 3,
+          "st_after": 3,
+          "count": 2,
+          "fired": false
+        }
+      ]
+    },
+    {
+      "subjectID": 22,
+      "sessionID": 1,
+      "taskID": 3,
+      "onset": 20.0,
+      "offset": 26.9,
+      "duration": 6.899999999999999,
+      "max_raw_prob": 0.55078125,
+      "max_ema_prob": 0.4806543302355032,
+      "root_cause": "(a) never crossed the high threshold (raw crossed 0.49 but EMA kept it below 0.49)",
+      "hazard_timeline": [
+        {
+          "t_end": 17.0,
+          "now_ms": 17000,
+          "raw_p": 0.41796875,
+          "ema_p": 0.402644554248355,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 17.5,
+          "now_ms": 17500,
+          "raw_p": 0.13671875,
+          "ema_p": 0.24308907169934202,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 18.0,
+          "now_ms": 18000,
+          "raw_p": 0.35546875,
+          "ema_p": 0.3105168786797368,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 18.5,
+          "now_ms": 18500,
+          "raw_p": 0.46875,
+          "ema_p": 0.40545675147189475,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 19.0,
+          "now_ms": 19000,
+          "raw_p": 0.35546875,
+          "ema_p": 0.3754639505887579,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 19.5,
+          "now_ms": 19500,
+          "raw_p": 0.55078125,
+          "ema_p": 0.4806543302355032,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 20.0,
+          "now_ms": 20000,
+          "raw_p": 0.12890625,
+          "ema_p": 0.26960548209420127,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 20.5,
+          "now_ms": 20500,
+          "raw_p": 0.171875,
+          "ema_p": 0.2109671928376805,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 21.0,
+          "now_ms": 21000,
+          "raw_p": 0.0390625,
+          "ema_p": 0.1078243771350722,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 21.5,
+          "now_ms": 21500,
+          "raw_p": 0.0234375,
+          "ema_p": 0.05719225085402888,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 22.0,
+          "now_ms": 22000,
+          "raw_p": 0.01953125,
+          "ema_p": 0.03459565034161155,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 22.5,
+          "now_ms": 22500,
+          "raw_p": 0.015625,
+          "ema_p": 0.02321326013664462,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 23.0,
+          "now_ms": 23000,
+          "raw_p": 0.109375,
+          "ema_p": 0.07491030405465784,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 23.5,
+          "now_ms": 23500,
+          "raw_p": 0.0625,
+          "ema_p": 0.06746412162186313,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 24.0,
+          "now_ms": 24000,
+          "raw_p": 0.3125,
+          "ema_p": 0.21448564864874525,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 24.5,
+          "now_ms": 24500,
+          "raw_p": 0.15234375,
+          "ema_p": 0.1772005094594981,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 25.0,
+          "now_ms": 25000,
+          "raw_p": 0.2109375,
+          "ema_p": 0.19744270378379924,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 25.5,
+          "now_ms": 25500,
+          "raw_p": 0.0703125,
+          "ema_p": 0.12116458151351969,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 26.0,
+          "now_ms": 26000,
+          "raw_p": 0.26953125,
+          "ema_p": 0.21018458260540787,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 26.5,
+          "now_ms": 26500,
+          "raw_p": 0.11328125,
+          "ema_p": 0.15204258304216314,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        }
+      ]
+    },
+    {
+      "subjectID": 22,
+      "sessionID": 1,
+      "taskID": 3,
+      "onset": 44.6,
+      "offset": 46.86,
+      "duration": 2.259999999999998,
+      "max_raw_prob": 0.703125,
+      "max_ema_prob": 0.6093848208772247,
+      "root_cause": "(b) crossed but freeze ended before the confirmations completed",
+      "hazard_timeline": [
+        {
+          "t_end": 42.0,
+          "now_ms": 42000,
+          "raw_p": 0.38671875,
+          "ema_p": 0.36302519693235386,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 42.5,
+          "now_ms": 42500,
+          "raw_p": 0.43359375,
+          "ema_p": 0.40536632877294154,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 43.0,
+          "now_ms": 43000,
+          "raw_p": 0.2109375,
+          "ema_p": 0.2887090315091766,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 43.5,
+          "now_ms": 43500,
+          "raw_p": 0.24609375,
+          "ema_p": 0.2631398626036706,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 44.0,
+          "now_ms": 44000,
+          "raw_p": 0.40234375,
+          "ema_p": 0.3466621950414682,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 44.5,
+          "now_ms": 44500,
+          "raw_p": 0.296875,
+          "ema_p": 0.3167898780165873,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 45.0,
+          "now_ms": 45000,
+          "raw_p": 0.53125,
+          "ema_p": 0.4454659512066349,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 45.5,
+          "now_ms": 45500,
+          "raw_p": 0.484375,
+          "ema_p": 0.4688113804826539,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 46.0,
+          "now_ms": 46000,
+          "raw_p": 0.46875,
+          "ema_p": 0.4687745521930616,
+          "st_before": 0,
+          "st_after": 0,
+          "count": 0,
+          "fired": false
+        },
+        {
+          "t_end": 46.5,
+          "now_ms": 46500,
+          "raw_p": 0.703125,
+          "ema_p": 0.6093848208772247,
+          "st_before": 0,
+          "st_after": 1,
+          "count": 1,
+          "fired": false
+        }
+      ]
+    }
+  ]
+}
