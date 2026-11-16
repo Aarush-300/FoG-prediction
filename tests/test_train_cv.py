@@ -3,7 +3,7 @@ Unit tests for Phase 2 6-fold CV training isolation and harness discipline.
 """
 
 import pytest
-from src.train_cv import verify_test_isolation, DEV_FOLDS, TEST_SUBJECTS
+from src.train_cv import verify_test_isolation, DEV_FOLDS, INNER_VAL_FOLDS, TEST_SUBJECTS
 
 
 def test_test_subject_isolation_assertion():
@@ -31,3 +31,29 @@ def test_dev_folds_disjointness_and_completeness():
     assert len(set(all_fold_subjs)) == 18
     expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19}
     assert set(all_fold_subjs) == expected
+
+
+def test_inner_validation_disjointness_and_no_test_leakage():
+    all_dev_subjs = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19}
+    for f_idx in range(6):
+        outer = set(DEV_FOLDS[f_idx])
+        inner = set(INNER_VAL_FOLDS[f_idx])
+
+        # Assert zero subject overlap between early stopping inner val and held-out fold
+        assert not (outer & inner), f"Fold {f_idx}: outer {outer} and inner {inner} share subjects!"
+
+        # Assert no test subjects appear in either outer or inner
+        assert not (outer & TEST_SUBJECTS), f"Fold {f_idx}: outer contains test subjects {outer & TEST_SUBJECTS}!"
+        assert not (inner & TEST_SUBJECTS), f"Fold {f_idx}: inner contains test subjects {inner & TEST_SUBJECTS}!"
+
+        # Assert valid subsets of dev cohort
+        assert outer.issubset(all_dev_subjs)
+        assert inner.issubset(all_dev_subjs)
+
+        # Inner validation has exactly 2 subjects
+        assert len(inner) == 2
+
+        # Remaining training subjects has exactly 13 subjects
+        train_subjs = all_dev_subjs - outer - inner
+        assert len(train_subjs) == 13
+

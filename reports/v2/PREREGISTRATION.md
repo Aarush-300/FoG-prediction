@@ -11,6 +11,8 @@
 > 1. **Early Signal Reality:** Empirical diagnostic testing on both validation and held-out test sets revealed that kinematic IMU features carry negligible signal earlier than $0.5\text{ s}$ before freeze onset (pure pre-FoG ROC-AUC was $0.574$, hovering flat at baseline probability $\sim 0.20$).
 > 2. **FSM Cooldown Locking:** Detailed timeline analysis revealed that pre-freeze spikes frequently locked the firmware FSM into persistent `COOLDOWN` due to the "needs $p < \text{low}$" re-arm condition, muting alerts throughout long freeze episodes.
 > 3. **Denominator Reconciliation:** Normal gait time is now formally defined from $t = 2.0\text{ s}$ (the earliest possible 100-sample window completion) to hazard onset, removing $40.0\text{ s}$ of un-evaluable initial buffer across test trials ($580.60\text{ s} = 0.1613\text{ h}$).
+> 4. **Inner Validation Discipline for Early Stopping (Pre-Training Amendment):** To prevent leakage into out-of-fold (OOF) evaluation, early stopping and model checkpointing during 6-fold CV shall NOT monitor the outer held-out fold. Instead, each fold holds out a deterministic, stratified inner validation set of 2 subjects from the 15 training subjects. The 3 outer held-out subjects are strictly evaluated post-training for pure OOF generation.
+> 5. **Trivial Baselines & Decision Rule (Pre-Training Amendment):** Three trivial baselines (taskID only, taskID + trial elapsed time, and 14 hand-crafted kinematic features with logistic regression) are evaluated under the exact same 6-fold CV. The ResCNN signal claim requires pooled OOF ROC-AUC $\ge 0.65$ with cluster-bootstrap 95% CI excluding $0.5$, AND a pooled AUC at least $0.05$ above the best trivial baseline.
 > All model training, hyperparameter tuning, and operating point decisions remain strictly blinded to test set data, executed strictly on the 18 development subjects via 6-fold cross-validation.
 
 ---
@@ -32,11 +34,23 @@
    - All 18 non-test subjects (previously split into 15 train and 3 validation) are pooled into a single development cohort:
      $$\text{Dev Subjects} = \{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19\}$$
      Total windows: $8,814$.
-2. **6-Fold Subject-Grouped Cross-Validation:**
-   - 18 subjects split into 6 disjoint folds (3 subjects per fold).
-   - Strict subject-grouping: No subject appears in both training and validation folds.
-   - Stratified grouping ensures freeze episodes are distributed across folds.
-   - Out-of-Fold (OOF) predictions are recorded for all $8,814$ windows across all folds.
+2. **6-Fold Subject-Grouped Cross-Validation with Inner Validation Discipline:**
+   - 18 subjects split into 6 disjoint outer folds (3 subjects per fold):
+     - Fold 0: `[2, 8, 16]`
+     - Fold 1: `[19, 6, 17]`
+     - Fold 2: `[1, 7, 12]`
+     - Fold 3: `[3, 10, 4]`
+     - Fold 4: `[15, 14, 13]`
+     - Fold 5: `[11, 9, 5]`
+   - **Inner Validation Early-Stopping Sets:** To eliminate evaluation leakage, early stopping and model checkpointing do not monitor the outer fold. Instead, 2 subjects from the 15 training subjects are deterministically held out for validation during training:
+     - Fold 0: `[19, 6]` (inner val) | `[1, 3, 4, 5, 7, 9, 10, 11, 12, 13, 14, 15, 17]` (train)
+     - Fold 1: `[1, 7]` (inner val) | `[2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16]` (train)
+     - Fold 2: `[3, 10]` (inner val) | `[2, 4, 5, 6, 8, 9, 11, 13, 14, 15, 16, 17, 19]` (train)
+     - Fold 3: `[15, 14]` (inner val) | `[1, 2, 5, 6, 7, 8, 9, 11, 12, 13, 16, 17, 19]` (train)
+     - Fold 4: `[11, 8]` (inner val) | `[1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 16, 17, 19]` (train)
+     - Fold 5: `[2, 16]` (inner val) | `[1, 3, 4, 6, 7, 8, 10, 12, 13, 14, 15, 17, 19]` (train)
+   - Strict subject-grouping: The inner validation set and outer held-out fold share zero subjects across all folds.
+   - Out-of-Fold (OOF) predictions are generated strictly on the outer held-out fold after training completes.
 3. **Scaler Fitting Discipline:**
    - In cross-validation, the standard Z-score scaler $(\mu, \sigma)$ is fit **strictly on the training fold subjects only**, and applied to the validation fold subjects.
    - The final deployable production scaler is fit across all 18 development subjects pooled together. No test data is ever seen by the scaler.
@@ -101,11 +115,17 @@ Experiments proceed in strict priority order. Any variant must demonstrate stati
 
 1. **Experiment (g) — Early Signal Check (GO/NO-GO Gateway):**
    - Train `Improved_ResCNN` strictly on **Pure Pre-FoG (label 1) vs Normal Gait (label 0)** windows only (dropping transition label -1 and active freeze label 2).
-   - Evaluated across 6-fold subject-grouped CV with 3 fixed random seeds (`[42, 43, 44]`).
+   - Evaluated across 6-fold subject-grouped CV with 3 fixed random seeds (`[42, 43, 44]`), using 2 inner-validation subjects for early stopping and 3 outer held-out subjects for OOF evaluation.
+   - Evaluated against three trivial baselines under identical 6-fold CV:
+     - (a) Logistic regression on `taskID` (one-hot).
+     - (b) Logistic regression on `taskID` + time since trial start (`start_time_s`).
+     - (c) Hand-crafted feature model (accel/gyro std, mean abs gyro, dominant frequency, 3-8 Hz / 0.5-3 Hz Freeze Index ratio) with logistic regression.
    - **Pre-Registered Decision Rule:**
-     $$\text{If pooled OOF ROC-AUC } < 0.65 \quad \text{OR 95\% bootstrap CI includes } 0.50:$$
+     "The ResCNN signal claim requires pooled OOF ROC-AUC $\ge 0.65$ with the cluster-bootstrap CI excluding 0.5, AND a pooled AUC at least 0.05 above the best trivial baseline."
+     $$\text{If pooled OOF ROC-AUC } < 0.65 \quad \text{OR 95\% cluster-bootstrap CI includes } 0.50 \quad \text{OR margin over best baseline } < 0.05:$$
      The scientific claim of *"anticipatory early prediction 0.5–3.0s ahead"* is declared **empirically unsupported**, and the primary objective of the system is formally re-scoped to **FAST DETECTION** (rapid reaction upon freeze inception).
    - **Secondary Per-Episode Early-Signal Reporting:** For every development episode, report the **maximum EMA smoothed probability** in the extended pre-freeze horizon $[T_{\text{onset}} - 5.0\text{ s}, T_{\text{onset}} - 0.5\text{ s}]$ to test if any sub-cohort of episodes exhibits detectable pre-freeze dynamics prior to the $0.5\text{ s}$ transition boundary.
+   - **Cluster Bootstrap CIs:** All confidence intervals resample whole subjects (cluster bootstrap across dev subjects, 1,000 iterations). Both per-fold AUCs and pooled OOF AUC are reported.
 2. **Experiment (b) — 3D Euler Rotation Range:**
    - Test roll range up to $\pm 35^\circ$ vs $\pm 50^\circ$ vs $\pm 70^\circ$ (pitch/yaw $\le 35^\circ$) applied in physical units ($g, ^\circ/\text{s}$) prior to normalization. Selection by highest OOF PR-AUC and resilience to extreme sensor mounting tilt.
 3. **Experiment (e) — Pre-FoG Loss Weighting:**
