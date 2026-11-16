@@ -149,13 +149,17 @@ def extract_trial_records(raw_csv_path, meta_list, probs, channels):
                     'taskID': task
                 })
                 
-        # Normal gait duration in seconds (trial minus freeze hazard zones)
-        in_freeze_zone = np.zeros(len(sig), dtype=bool)
+        # Evaluable normal gait duration in seconds:
+        # Evaluated strictly from t=2.0s (first possible window end, index 100) to hazard zone start
+        n_sig = len(sig)
+        evaluable_normal = np.zeros(n_sig, dtype=bool)
+        if n_sig > 100:
+            evaluable_normal[100:] = True
         for ep in ep_ranges:
             s_i = max(0, int(round((ep['onset'] - 3.0) * 50.0)))
-            e_i = min(len(sig), int(round(ep['offset'] * 50.0)))
-            in_freeze_zone[s_i:e_i] = True
-        normal_duration_s = float(np.sum(~in_freeze_zone) / 50.0)
+            e_i = min(n_sig, int(round(ep['offset'] * 50.0)))
+            evaluable_normal[s_i:e_i] = False
+        normal_duration_s = float(np.sum(evaluable_normal) / 50.0)
         
         trial_probs = [float(probs[idx]) for idx, _ in indexed_wins]
         trial_end_times = [float(m['end_time_s']) for _, m in indexed_wins]
